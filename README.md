@@ -1,15 +1,130 @@
-# uPort Wordpress Bridge
-### Bounty Candidate Project
-To create a bridge between Web2.0 and Web3.0 a `uport-wordpress-login` plugin should be made available. But, we need your help community.
+# uPort Wordpress Plugin
+### Bridging The Gap Between Web 2.0 and Web 3.0
+Did you know it has been reported that Wordpress powers over 25% of the Internet? That's a lot of websites. A vast majority of websites are built using PHP and popular content management systems like Wordpress and Drupal bu
 
-The uPort Wordpress Bridge Plugin should provide both passwordless login capabilities for users and easy interaction with an injected Web3 object.
+The uPort Wordpress Bridge Plugin will allow Wordpress websites to easily integrate decentralized solutions like self-sovereign identity and Ethereum blockchain signing requests in just a few minutes by utilzing the uPort self-sovereign identity platform.
 
-## Acceptance Criteria - Bounty Candidates
+**Just getting started with the Ethereum and Web 3.0?** We recommend reviewing the following resources to get a better understanding of Web 3.0 and why it's important for application developers.
+
+# The Big Picture
+The uPort Wordpress Plugin is currently in active development. The uPort team is primarily focused on crafting the decentralized identity specifications and protocols in addition to ready-to-go Javascript libraries. However, to make Web 3.0 technology more readily available, we're interested in supporting community project, like the uPort Wordpress Plugin, to help bring self-sovereign identity to as many people as possible.
+
+## Feature Requirements
+- [ ] Passwordless Login
+- [ ] Attestation requests to registered decentralized identity
+- [ ] Blockchain transaction signing request to registered decentralized identity
+- [ ] Query ERC780 claims registry using registered decentralized identity address 
+- [ ] Save registered user information: MNID, address, pushToken, etc... in database
+
+## Code Requirements
+- [ ] [PHP] Create `ES256K` PHP library
+- [ ] [PHP] Create `did-jwt-php` PHP module matching the Javascript `did-jwt` API interface
+
+## Administrator Requirements 
+- [ ] Save Decentralized Application Private Key in Database
+- [ ] Save list of ERC20 smart contracts
+- [ ] Add additional permissions to a registered self-sovereign identity
+
+
+### Passwordless Login
+A core solution provided by uPort is single sign on. Decentralized identities can login to applications using cryptographically verifiable credentials - replacing the requirement for email(username) and passwords to authenticate a user.
+
+With the advent of the decentralized solutions like the Ethereum Blockchain and Interplanetary File System (IPFS) entirely new categories of Internet applications can be created. Ethereum can be considered a universal state management system. IPFS is a decentralized file storage system. Ethereum and IPFS together create fascinating opportunities for developers to build a truly decentralized Internet.
+
+First, let's start with brief overview of how decentralized authentication actually works.
+
+uPort is a platform to create decentralized identities and applications. We use the Ethereum blockchain (and smart contracts) to create a public registry of decentralized identities. 
+
+The ERC780 specification originally published by uPort's @oed is the smart contract specification used to publically register decentralized identities and applications. The Ethereum Claims Registry (ECR) allows persons, smart contracts, and machines to issue claims about each other, as well as self issued claims.
+
+A claim has 4 fields:
+
+- Issuer - who makes the claim (msg.sender in Ethereum terms)
+- Subject - who is the claim about (another ethereum address)
+- Key - what kind of claim is it (eg. "name", "credit score")
+- Value - The actual value of the claim
+
+uPort uses the Ethereum Claims Registry (ECR) in conjunction with IPFS to enable a protocol for private, but cryptographically verifiable credentials using a public/private keypairs as the core building a.k.a cryptographic primitives.
+
+##### Example of **decentralized identity** saved on IPFS
+```
+{
+  @context: "http://schema.org",
+  @type: "Person,
+  publicEncKey: "PrHPGZ8/1KvcbVCTCTWfhFugSPGmkh7ZNDmZ6VynvzA=",
+  publicKey:"0x04951d21e8370e1dfbd19d9fe52bdd47c562afb04d5ac9cf554ea46a3511c5f2e91915209d0cb79584a28c1d4a3f943c7bd025ab567eeae37b1f6ac595beb0052d"
+}
+
+```
+
+In addition to decentralized identities registered on the Ethereum blockchain and the InterPlanetary File System, it's also possible to register decentralized applications, which are responsible for `issuing` claims about decentralized identities.
+
+##### Example of **decentralized application** saved on IPFS
+```
+{
+  @type:"App"
+  address:"2ooWkG721aG91HyfJqwktiFbJJPwatgRp7n"
+  banner:{contentUrl: "/ipfs/QmW9N3AttXQ8LV9QaSwM8vW43Ubvq7e2BC3kWVvCvFBYmG"}
+  description:"Create your own token. Send it to anyone for anything!"
+  image:{contentUrl: "/ipfs/QmTscmFgZBXNe4zQpEZxJaQq4JLB2F6eYsevUtbFo1wWCv"}
+  name:"Gluon"
+  publicKey:"0x0409298a981b6841fe439039be9ac9e55a9f496c0fb4fa5679ce7614027196e591e1c9610c3e21c53f542b2b9cc52d30048a5c1b2818172fddeef47525a35b0b78"
+  url:"https://gluon.space"
+}
+```
+
+By registering self-sovereign identities and application public keys on in public (and decentralized) environment, a protocol for passing credentials (personal data and information) is established. This credential sharing protocol is the mechanism for replacing traditional login methods requiring username(email) and passwords. Instead of using the traditional authentications methods, uPort leverages the cryptographic primitives and universal state management system provided by Ethereum to create an arguably much more simple and secure method for users of the Internet to authenticate themselves on both applications and decentralized applications. 
+
+
+## The "Hacky" Way - a naive implementation of
 The uPort Wordpress Bridge needs to fulful the following critieria to be considered ready for non-beta testing purposes.
 
-- [ ] Infrastructure - Passwordless Login using uPort Attestations.
-- [ ] Feature - Authenticated users can save ERC20 smart contracts to either localstorage or Wordpress database.
-- [ ] Decentralized - Use Web3 object to scan smart contracts to check the authenticated identities token balance.
+#### Project Goals
+
+- [ ] Feature - Authenticated users can save ERC20 smart contracts to either localstorage/database.
+
+#### Required Deliverables
+
+
+## The Plugin Specification
+The uPort Wordpress Plugin manages communication requests from sever, browser and smartphone.
+
+1. [Browser/Server] Initialize Login Request by sending request from Browser to Server
+2. [Server/Browser] Generate Credentials Request and send verified JWT and UUID to Browser
+3. [Browser] Display QR Code
+4. [Browser/Smartphone] Scan QR Code using uPort Mobile App/SDK
+5. [Browser] Start polling Wordpress server endpoint using UUID as identifier
+6. [Smartphone/Server] Approve Login request and send credentials to callback URL
+7. [Server] Confirm requested credentials and send response to Browser polling for response
+8. [Browser/Server] Authenticate Login Session 
+
+A Login button should replace the default the email/password authentication fields. When the login button is clicked a request will be sent from the Wordpress Frontend to the Wordpress backend using Ajax. When the Wordpress server receives the login request from the Wordpress Frontend, a credential request will be generated (privately signed) and issued back to the Frontend.
+
+When a new credential request is generated using the `uport-php` library a unique identifier (random string) using `uuid` will also be generated. 
+
+The `uuid` should be saved in a database table and also included in the `callback` url.
+
+Javascript Example
+
+```
+import { Credentials, SimpleSigner } from 'uport'
+const setttings = { networks, address: '5A8bRWU3F7j3REx3vkJ...', signer: new SimpleSigner(process.env.PRIVATE_KEY)}
+const credentials = new Credentials(settings)
+
+const requqest = { 
+  requested: ['name', 'country'],
+  callbackUrl: 'https://myserver.com/api/authentication',
+  notifications: true 
+}
+
+credentials.createRequest(req).then(jwt => {
+
+ })
+ ```
+
+Upon arrival of the privately signed credential request, the Wordpress Frontend will display a QR code for scanning by the uPort Smartphone Application. The uPort Mobile App (or SDK enabled mobile app) will include a `callback` URL, which is called once the credential request is `Approved` within the uPort Mobile App. A response object containing the requested credentials will be sent to the Wordpress servers.
+
+
 
 ## Technical Information
 The uPort Wordpress Bridge should include both "centralized" and "decentralized" features.
