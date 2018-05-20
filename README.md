@@ -7,10 +7,10 @@ Did you know it has been reported that Wordpress powers over 25% of the Internet
 The uPort Wordpress Bridge Plugin will (coming soon) allow Wordpress websites to easily integrate decentralized solutions like self-sovereign identity and Ethereum blockchain signing requests in just a few minutesl
 
 # The Big Picture
-uPort wants to support PHP, so we decentralized, self-sovereign identity solutions can be installed in popular Open Source Content Management Systems like Wordpress and Drupal.
+uPort wants to support PHP, so decentralized, self-sovereign identity and Ethereum blockchain transaction signing can be installed in popular Open Source Content Management Systems like Wordpress.
 
 ## Feature Requirements
-- [ ] Passwordless Authentication using uPort's Decentralized Identity Verification protocols
+- [ ] Passwordless authentication using uPort's decentralized identity protocols
 - [ ] Save registered user information: MNID, address, pushToken, etc... the user database
 - [ ] Attestation requests sent to registered decentralized identities
 - [ ] Blockchain transaction signing request sent to registered decentralized identities
@@ -20,8 +20,7 @@ uPort wants to support PHP, so we decentralized, self-sovereign identity solutio
 - [ ] [PHP] Create `did-jwt-php` PHP module matching the Javascript `did-jwt` API interface
 
 ## Administrator Feature Requirements 
-- [ ] Save decentralized application SimpleSigner (private key) in database*
+- [ ] Save decentralized application SimpleSigner (private key) in database
 - [ ] Easily Add additional backend permissions to a registered self-sovereign identity
 
-* In the future a **key vault** should be implemented for better private key management.
-
+In the future a **key vault** should be integrated with Wordpress for better, more secure private key management... instead of simply storing the private key in a database, which as well know is a big "No! No!"
