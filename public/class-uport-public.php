@@ -64,10 +64,13 @@ class Uport_Public {
 
 	public function login_slug () {
 
-		$jsFileLoc = plugin_dir_url( __FILE__ ) . 'js/uport-public.js';
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
 
-		wp_enqueue_script( $this->plugin_name, $jsFileLoc, array( 'jquery' ), $this->version, false );
+		// $styleURL = plugin_dir_url( __FILE__ ) . 'css/uport-public.css';
+		// error_log($styleURL);
 
+
+		// wp_enqueue_style( $this->plugin_name, $styleURL, array( 'jquery' ), $this->version, false );
 	}
 
 	/**

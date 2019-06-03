@@ -2,3 +2,6 @@
  * All of the CSS for uPort public-facing functionality should be
  * included in this file.
  */
+input.button.button-primary.button-large.uportButton {
+    margin-right: 0.25em;
+}
