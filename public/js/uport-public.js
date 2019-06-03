@@ -23,16 +23,22 @@
 	 *
 	 */
 	window.addEventListener('DOMContentLoaded', (event) => {
-	    console.log('DOM fully loaded and parsed');
+	    
 	    var uportButton 			= document.createElement('input');
 			uportButton.className 	= "button button-primary button-large uportButton";
 			uportButton.value		= "uPort Login";
 			uportButton.type 		= "button";
-			uportButton.style 		= "margin-right: 0.25em;"
+			uportButton.style 		= "margin-right: 0.25em;";
+			uportButton.id 			= "loginWithUportButton";
 
 		document.getElementsByClassName('submit')[0].appendChild(uportButton);
 
+		document.getElementById('loginWithUportButton').addEventListener('click', startUportLoginSequence);
+
 	});
 	
+	function startUportLoginSequence() {
+		console.log('button clicked');
+	}
 
 })( jQuery );
