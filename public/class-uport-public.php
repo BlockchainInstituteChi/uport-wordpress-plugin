@@ -62,6 +62,14 @@ class Uport_Public {
 
 	}
 
+	public function login_slug () {
+
+		$jsFileLoc = plugin_dir_url( __FILE__ ) . 'js/uport-public.js';
+
+		wp_enqueue_script( $this->plugin_name, $jsFileLoc, array( 'jquery' ), $this->version, false );
+
+	}
+
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
