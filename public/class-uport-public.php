@@ -66,11 +66,12 @@ class Uport_Public {
 
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
 
-		// $styleURL = plugin_dir_url( __FILE__ ) . 'css/uport-public.css';
-		// error_log($styleURL);
+	}
 
+	public function login_libs () {
 
-		// wp_enqueue_style( $this->plugin_name, $styleURL, array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-js.js', array( 'jquery' ), $this->version, false );
+
 	}
 
 	/**
