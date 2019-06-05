@@ -46,6 +46,7 @@
     margin: auto;
     font-size: 1.25em;
     float: unset;
+    color: black;
 }
 .uport-backdrop .loginWindow .title img {
     max-width: 100px;
