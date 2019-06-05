@@ -93,6 +93,7 @@ function displayQRCodeDiv (address) {
 
 	document.body.appendChild(overlayDiv)
 
+  document.getElementById('canvasBackdrop').addEventListener('click', cancelUportLogin)
 	document.getElementById('cancel-uport-login').addEventListener('click', cancelUportLogin)
 
 	var canvas = document.getElementById('uport-login-canvas')
