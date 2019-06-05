@@ -62,16 +62,18 @@ class Uport_Public {
 
 	}
 
-	public function login_slug () {
+	public function login_scripts () {
+		wp_register_script( 'uport-js', plugin_dir_url( __FILE__ ) . 'js/uport-js.js' );
+		wp_register_script( 'qrcode', plugin_dir_url( __FILE__ ) . 'js/qrcode.js' );
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
-
+		wp_enqueue_script('uport-js');
+		wp_enqueue_script('qrcode');
 	}
 
-	public function login_libs () {
+	public function login_styles () {
+		wp_register_style( 'uport-js', plugin_dir_url( __FILE__ ) . 'css/uport-login.css' );
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-js.js', array( 'jquery' ), $this->version, false );
-
+		wp_enqueue_style('uport-js');
 	}
 
 	/**
@@ -81,8 +83,8 @@ class Uport_Public {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
-
+		// This was put here by raininja but doesn't seem to be necessary
+		// wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
 	}
 
 }

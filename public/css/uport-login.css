@@ -1,0 +1,60 @@
+.body {
+	color: red !important;
+}
+.uport-backdrop {
+	position:absolute;
+	top:0;
+	left:0;
+	min-width:100vw;
+	min-height:100vh;
+	z-index:10;
+	text-align: center;
+	background-color: #00000047;
+}
+
+.uport-backdrop span {
+    margin: 1em;
+    float: left;
+    font-size: 1.5em;
+    display: block;
+    color: white;
+}
+
+.uport-backdrop canvas {
+	width:100px; 
+	height: auto; 
+}
+
+.loginWindow {
+    background: white;
+    max-width: 500px;
+    margin: auto;
+    margin-top: 5em;
+    border: 1px solid black;
+    border-radius: 1em;
+    box-shadow: 1px 1px 5px 1px #00000040;
+}
+
+
+/* Title Elements */
+.uport-backdrop .loginWindow .title {
+    display: block;
+    text-align: center;
+    position: relative;
+}
+.uport-backdrop .loginWindow .title span {
+    margin: auto;
+    font-size: 1.25em;
+    float: unset;
+}
+.uport-backdrop .loginWindow .title img {
+    max-width: 100px;
+    display: inline-block;
+    padding: 1em;
+    margin-left: -2em;
+}
+.uport-backdrop .loginWindow .title span {
+    margin: auto;
+    font-size: 1.25em;
+    float: unset;
+}
