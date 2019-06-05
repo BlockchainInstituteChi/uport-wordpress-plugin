@@ -63,11 +63,15 @@ class Uport_Public {
 	}
 
 	public function login_scripts () {
+		wp_register_script( 'jquery', plugin_dir_url( __FILE__ ) . 'js/jquery.js' );
 		wp_register_script( 'uport-js', plugin_dir_url( __FILE__ ) . 'js/uport-js.js' );
 		wp_register_script( 'qrcode', plugin_dir_url( __FILE__ ) . 'js/qrcode.js' );
+		wp_register_script( 'test', plugin_dir_url( __FILE__ ) . 'js/test.js' );
 
+		wp_enqueue_script('jquery');
 		wp_enqueue_script('uport-js');
 		wp_enqueue_script('qrcode');
+		wp_enqueue_script('test', array('jquery'), '1.0', true );
 	}
 
 	public function login_styles () {

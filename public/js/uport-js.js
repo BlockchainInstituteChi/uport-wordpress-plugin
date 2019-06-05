@@ -109,6 +109,7 @@ function cancelUportLogin () {
 	document.getElementById('canvasBackdrop').remove()
 
 }
+
 },{"qrcode-terminal":153,"uport-connect":175}],2:[function(require,module,exports){
 var asn1 = exports;
 

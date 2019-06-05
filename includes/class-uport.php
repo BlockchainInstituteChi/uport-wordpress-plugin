@@ -175,6 +175,13 @@ class Uport {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_scripts', 1);
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
+		add_action( 'wp_ajax_nopriv_test', 'test' );
+
+		function test () {
+			echo "test";
+			die();
+		}
+
 	}
 
 	/**
