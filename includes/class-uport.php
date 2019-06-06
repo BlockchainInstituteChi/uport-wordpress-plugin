@@ -184,7 +184,6 @@ class Uport {
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
 		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', 'generateDisclosureRequest' );
 
-		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 		function generateDisclosureRequest () {
 			$jwtTools = new jwtTools(null);
@@ -206,7 +205,7 @@ class Uport {
 			 // "Client ID"
 			$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
 
-			$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string($permitted_chars, 16);
+			$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
 			$time = time();
 			$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
@@ -231,14 +230,17 @@ class Uport {
 			die();
 		}
 
-		function generate_string($input, $strength = 16) {
-		    $input_length = strlen($input);
+		function generate_string() {
+			$strength = 16;
+			$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		    $input_length = strlen($permitted_chars);
 		    $random_string = '';
 		    for($i = 0; $i < $strength; $i++) {
-		        $random_character = $input[mt_rand(0, $input_length - 1)];
+		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
 		        $random_string .= $random_character;
 		    }
-		 
+		 	error_log('randomString calculated');
+		 	error_log($random_string);
 		    return $random_string;
 		}
 		 

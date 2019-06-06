@@ -38,7 +38,7 @@ function setCredentials ( ) {
   // We can also pass the url value separately from ajaxurl for front end AJAX implementations
   jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
     response = JSON.parse(response);
-    console.log('Got this from the server: ' + response, response.topic);
+    console.log('Got this from the server: ', response);
     displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
     pollForResult('access_token', response.topic, function(result) {
       console.log('pollForResult returned ', result)
@@ -61,7 +61,7 @@ function pollForResult(topicName, url, cb, cancelled) {
       if (err) return cb(err);
 
       if (cancelled()) {
-        clearInterval(interval);
+        // clearInterval(interval);
         return cb(new Error('Request Cancelled'));
       }
 
@@ -69,12 +69,12 @@ function pollForResult(topicName, url, cb, cancelled) {
       var data = body.message;
       try {
         if (data.error) {
-          clearInterval(interval);
+          // clearInterval(interval);
           return cb(data.error);
         }
       } catch (err) {
         // console.error(err.stack);
-        clearInterval(interval);
+        // clearInterval(interval);
         return cb(err);
       }
       // Check for param, stop polling and callback if present
