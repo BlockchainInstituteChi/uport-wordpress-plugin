@@ -22,15 +22,69 @@ const uport = new uportConnect.Connect(appName, {
 
 function setCredentials ( ) {
 	// Request credentials
-	uport.requestCredentials({
-	  requested: ['name'],
-	}).then((credentials) => {
-	  console.log(credentials);
+	// uport.requestCredentials({
+	//   requested: ['name'],
+	// }).then((credentials) => {
+	//   console.log(credentials);
 
-	  console.log('finished')
+	//   console.log('finished')
 
-	})
+	// })
 
+  var data = {
+    'action': 'generateDisclosureRequest'     // We pass php values differently!
+  };
+
+  // We can also pass the url value separately from ajaxurl for front end AJAX implementations
+  jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
+    response = JSON.parse(response);
+    console.log('Got this from the server: ' + response, response.topic);
+    displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
+    pollForResult('access_token', response.topic, function(result) {
+      console.log('pollForResult returned ', result)
+    }, null);
+  });
+
+}
+
+
+
+var pollingInterval = 2000;
+
+function pollForResult(topicName, url, cb, cancelled) {
+  console.log( 'pollForResult called with ', topicName, url )
+  var interval = setInterval(function () {
+    jQuery.get(url, {
+      json: true,
+      method: 'GET'
+    }, function (err, res, body) {
+      if (err) return cb(err);
+
+      if (cancelled()) {
+        clearInterval(interval);
+        return cb(new Error('Request Cancelled'));
+      }
+
+      // parse response into raw account
+      var data = body.message;
+      try {
+        if (data.error) {
+          clearInterval(interval);
+          return cb(data.error);
+        }
+      } catch (err) {
+        // console.error(err.stack);
+        clearInterval(interval);
+        return cb(err);
+      }
+      // Check for param, stop polling and callback if present
+      if (data && data[topicName]) {
+        // clearInterval(interval);
+        // clearTopic(url);
+        return cb(null, data[topicName]);
+      }
+    });
+  }, pollingInterval);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
@@ -49,7 +103,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 function startUportLoginSequence() {
-	console.log('this function also ran, yes')
+	// console.log('this function also ran, yes')
 	console.log('button clicked');
 	setCredentials()
 }

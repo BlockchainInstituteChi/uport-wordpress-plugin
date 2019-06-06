@@ -14,13 +14,13 @@ console.log('test.js enqueued properly');
 // 	})
 // })(jQuery)
 
-jQuery(document).ready(function($) {
-	var data = {
-		'action': 'test'     // We pass php values differently!
-	};
+// jQuery(document).ready(function($) {
+// 	var data = {
+// 		'action': 'generateDisclosureRequest'     // We pass php values differently!
+// 	};
 
-	// We can also pass the url value separately from ajaxurl for front end AJAX implementations
-	jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
-		console.log('Got this from the server: ' + response);
-	});
-});
+// 	// We can also pass the url value separately from ajaxurl for front end AJAX implementations
+// 	jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
+// 		console.log('Got this from the server: ' + response);
+// 	});
+// });

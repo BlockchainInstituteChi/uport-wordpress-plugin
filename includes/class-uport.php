@@ -182,7 +182,9 @@ class Uport {
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
 
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
-		add_action( 'wp_ajax_nopriv_test', 'generateDisclosureRequest' );
+		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', 'generateDisclosureRequest' );
+
+		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 		function generateDisclosureRequest () {
 			$jwtTools = new jwtTools(null);
@@ -203,22 +205,43 @@ class Uport {
 
 			 // "Client ID"
 			$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
-			// 776e591d9674b1c0fc8182f8574f24734cdeb4dc7ef8c4643d0fda33f4f8e0d6
 
-			$jwtBody->iat 	      = 1556912833;
-			$jwtBody->requested   = ['name'];
-			$jwtBody->callback    = 'https://chasqui.uport.me/api/v1/topic/1OzSjQRFrF948LLk';
-			$jwtBody->net      	  = "0x4";
-			$jwtBody->type 		  = "shareReq";
+			$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string($permitted_chars, 16);
+
+			$time = time();
 			$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
+			$jwtBody->iat 	      = $time;
+			$jwtBody->requested   = ['name'];
+			$jwtBody->callback    = $topicUrl;
+			$jwtBody->net      	  = "0x4";
+			$jwtBody->exp 	      = $time + 600;
+			$jwtBody->type 		  = "shareReq";
 
 			// 2. Create JWT Object
 			$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
 			$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-			echo $jwt;
+
+			$payload = [];
+			$payload["jwt"] = $jwt;
+			$payload["topic"] = $topicUrl;	
+
+			echo json_encode($payload);
+
 			die();
 		}
+
+		function generate_string($input, $strength = 16) {
+		    $input_length = strlen($input);
+		    $random_string = '';
+		    for($i = 0; $i < $strength; $i++) {
+		        $random_character = $input[mt_rand(0, $input_length - 1)];
+		        $random_string .= $random_character;
+		    }
+		 
+		    return $random_string;
+		}
+		 
 		
 	}
 
