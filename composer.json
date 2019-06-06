@@ -1,0 +1,13 @@
+{
+    "name": "alex/uport-wordpress-plugin",
+    "require": {
+        "blockchaininstitute/jwttools": "dev-master"
+    },
+    "authors": [
+        {
+            "name": "alexander-morris",
+            "email": "alex@theblockchaininstitute.org"
+        }
+    ],
+    "minimum-stability": "dev"
+}

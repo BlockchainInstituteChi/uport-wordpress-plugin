@@ -79,7 +79,7 @@ class Uport_Public {
 
 		wp_enqueue_style('uport-js');
 	}
-
+	
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
