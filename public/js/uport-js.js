@@ -34,7 +34,7 @@ function setCredentials ( ) {
   var data = {
     'action': 'generateDisclosureRequest'     // We pass php values differently!
   };
-
+  console.log('calling', data)
   // We can also pass the url value separately from ajaxurl for front end AJAX implementations
   jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
     response = JSON.parse(response);

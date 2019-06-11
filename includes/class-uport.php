@@ -130,6 +130,54 @@ class Uport {
 
 	}
 
+	public function generateDisclosureRequest () {
+		$jwtTools = new jwtTools(null);
+
+		// Prepare the JWT Header
+		// 1. Initialize JWT Values
+		$jwtHeader = (object)[];
+		$jwtHeader->typ = 'JWT'; // ""
+		$jwtHeader->alg = 'ES256K'; // ""
+
+		// 2. Create JWT Object
+		$jwtHeaderJson = json_encode($jwtHeader, JSON_UNESCAPED_SLASHES);
+
+
+		// Prepare the JWT Body
+		// 1. Initialize JWT Values
+		$jwtBody = (object)[];
+
+		 // "Client ID"
+		// $signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
+		$signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
+
+		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
+
+		$time = time();
+		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
+		$jwtBody->iat 	      = $time;
+		$jwtBody->requested   = ['name', 'email'];
+		$jwtBody->callback    = $topicUrl;
+		$jwtBody->net      	  = "0x4";
+		$jwtBody->exp 	      = $time + 600;
+		$jwtBody->type 		  = "shareReq";
+
+		// 2. Create JWT Object
+		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
+
+		$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiIsImlhdCI6MTU1OTg0NTkzMywicmVxdWVzdGVkIjpbIm5hbWUiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljLzZUemZOanN4YTlGQ1B3QjQiLCJuZXQiOiIweDQiLCJleHAiOjE1NTk4NDY1MzMsInR5cGUiOiJzaGFyZVJlcSJ9.0P0bYemzOqrBz3NzOWGXiJUD84y8LFSNn5OEYHrTLwFzJ3sBaGO9xSqFVxNVO39lDzpZMhjVw8In7ZAgOs32qQ";
+		$topicUrl = "https://chasqui.uport.me/api/v1/topic/6TzfNjsxa9FCPwB4";
+		$payload = [];
+		$payload["jwt"] = $jwt;
+		$payload["topic"] = $topicUrl;	
+		error_log('jwt');
+		error_log($jwt);
+		echo json_encode($payload);
+
+		die();
+	}
+
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
@@ -182,53 +230,9 @@ class Uport {
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
 
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
-		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', 'generateDisclosureRequest' );
+		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', array(__CLASS__, 'generateDisclosureRequest' ));
+		// error_log('set disclosure request action');
 
-
-		function generateDisclosureRequest () {
-			$jwtTools = new jwtTools(null);
-
-			// Prepare the JWT Header
-			// 1. Initialize JWT Values
-			$jwtHeader = (object)[];
-			$jwtHeader->typ = 'JWT'; // ""
-			$jwtHeader->alg = 'ES256K'; // ""
-
-			// 2. Create JWT Object
-			$jwtHeaderJson = json_encode($jwtHeader, JSON_UNESCAPED_SLASHES);
-
-
-			// Prepare the JWT Body
-			// 1. Initialize JWT Values
-			$jwtBody = (object)[];
-
-			 // "Client ID"
-			$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
-
-			$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
-
-			$time = time();
-			$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
-			$jwtBody->iat 	      = $time;
-			$jwtBody->requested   = ['name'];
-			$jwtBody->callback    = $topicUrl;
-			$jwtBody->net      	  = "0x4";
-			$jwtBody->exp 	      = $time + 600;
-			$jwtBody->type 		  = "shareReq";
-
-			// 2. Create JWT Object
-			$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
-
-			$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-
-			$payload = [];
-			$payload["jwt"] = $jwt;
-			$payload["topic"] = $topicUrl;	
-
-			echo json_encode($payload);
-
-			die();
-		}
 
 		function generate_string() {
 			$strength = 16;
@@ -239,8 +243,6 @@ class Uport {
 		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
 		        $random_string .= $random_character;
 		    }
-		 	error_log('randomString calculated');
-		 	error_log($random_string);
 		    return $random_string;
 		}
 		 

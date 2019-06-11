@@ -61,7 +61,13 @@ register_deactivation_hook( __FILE__, 'deactivate_uport' );
  * The core uPort plugin class that is used to define public-facing site hooks, admin-specific hooks,
  * and internationalization.
  */
+
+
+
+
 require plugin_dir_path( __FILE__ ) . 'includes/class-uport.php';
+
+
 
 /**
  * Begins execution of the plugin.
