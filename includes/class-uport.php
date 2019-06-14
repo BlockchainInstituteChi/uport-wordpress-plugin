@@ -130,6 +130,12 @@ class Uport {
 
 	}
 
+	public function verifyDisclosureResponse () {
+
+		error_log($_POST['disclosureResponse']);
+
+	}
+
 	public function generateDisclosureRequest () {
 		$jwtTools = new jwtTools(null);
 
@@ -165,9 +171,9 @@ class Uport {
 		// 2. Create JWT Object
 		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
-		$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiIsImlhdCI6MTU1OTg0NTkzMywicmVxdWVzdGVkIjpbIm5hbWUiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljLzZUemZOanN4YTlGQ1B3QjQiLCJuZXQiOiIweDQiLCJleHAiOjE1NTk4NDY1MzMsInR5cGUiOiJzaGFyZVJlcSJ9.0P0bYemzOqrBz3NzOWGXiJUD84y8LFSNn5OEYHrTLwFzJ3sBaGO9xSqFVxNVO39lDzpZMhjVw8In7ZAgOs32qQ";
-		$topicUrl = "https://chasqui.uport.me/api/v1/topic/6TzfNjsxa9FCPwB4";
+		// $jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+		$jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA1NDIwODEsInJlcXVlc3RlZCI6WyJuYW1lIl0sImNhbGxiYWNrIjoiaHR0cHM6Ly9jaGFzcXVpLnVwb3J0Lm1lL2FwaS92MS90b3BpYy9objdGMjlUZmtBNnFkZnd3IiwibmV0IjoiMHg0IiwidHlwZSI6InNoYXJlUmVxIiwiaXNzIjoiMm9qRXRVWEJLMko3NWVDQmF6ejR0bmNFV0UxOG9GV3JuZkoifQ.L76FOm2BJu9GAgqpzCcQPFA5zHzmp7OB2poAro_zcjpRYAf6tmL9fpnVXmUhaVO2d1Hkjp36ZirFpgdUU7u08w";
+		$topicUrl = "https://chasqui.uport.me/api/v1/topic/hn7F29TfkA6qdfww";
 		$payload = [];
 		$payload["jwt"] = $jwt;
 		$payload["topic"] = $topicUrl;	
@@ -231,6 +237,7 @@ class Uport {
 
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
 		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', array(__CLASS__, 'generateDisclosureRequest' ));
+		add_action( 'wp_ajax_nopriv_verifyDisclosureResponse', array(__CLASS__, 'verifyDisclosureResponse' ));
 		// error_log('set disclosure request action');
 
 

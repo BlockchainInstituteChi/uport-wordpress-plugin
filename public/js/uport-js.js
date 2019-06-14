@@ -11,6 +11,7 @@ const appName = 'The Blockchain Institute';
 const uriHandler = (uri) => {
   displayQRCodeDiv (uri)
   console.log(uri)
+
 }
 
 const uport = new uportConnect.Connect(appName, {
@@ -20,7 +21,7 @@ const uport = new uportConnect.Connect(appName, {
     signer: uportConnect.SimpleSigner(signingKey)
 });
 
-function setCredentials ( ) {
+function callVerifyEndpoint ( access_token ) {
 	// Request credentials
 	// uport.requestCredentials({
 	//   requested: ['name'],
@@ -30,6 +31,31 @@ function setCredentials ( ) {
 	//   console.log('finished')
 
 	// })
+
+  var data = {
+    'action': 'verifyDisclosureResponse',
+    'disclosureResponse' : access_token
+  };
+  console.log('calling', data)
+  // We can also pass the url value separately from ajaxurl for front end AJAX implementations
+  jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
+    response = JSON.parse(response);
+    console.log('Called server and got response : ', response);
+
+  });
+
+}
+
+function setCredentials ( ) {
+  // Request credentials
+  // uport.requestCredentials({
+  //   requested: ['name'],
+  // }).then((credentials) => {
+  //   console.log(credentials);
+
+  //   console.log('finished')
+
+  // })
 
   var data = {
     'action': 'generateDisclosureRequest'     // We pass php values differently!
@@ -42,11 +68,14 @@ function setCredentials ( ) {
     displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
     pollForResult('access_token', response.topic, function(result) {
       console.log('pollForResult returned ', result)
+      if ( typeof( result.message.access_token ) != 'undefined'  ) {
+        console.log('valid message found');
+        callVerifyEndpoint(result.message.access_token);
+      }
     }, null);
   });
 
 }
-
 
 
 var pollingInterval = 2000;
