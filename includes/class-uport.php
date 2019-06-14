@@ -130,13 +130,27 @@ class Uport {
 
 	}
 
-	public function verifyDisclosureResponse () {
+	public static function verifyDisclosureResponse () {
 
-		error_log($_POST['disclosureResponse']);
+		$jwt = $_POST['disclosureResponse'];
+
+		$jwtTools = new jwtTools(null);
+
+		// $plainText = $jwtTools->deconstructAndDecode($jwt);
+
+		// error_log(var_dump($plainText));
+
+		$isVerified = $jwtTools->verifyJWT($jwt);
+
+		$output = new stdClass();
+
+		error_log('isVerified: ' . $isVerified);
+
+
 
 	}
 
-	public function generateDisclosureRequest () {
+	public static function generateDisclosureRequest () {
 		$jwtTools = new jwtTools(null);
 
 		// Prepare the JWT Header
@@ -172,8 +186,8 @@ class Uport {
 		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
 		// $jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-		$jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA1NDIwODEsInJlcXVlc3RlZCI6WyJuYW1lIl0sImNhbGxiYWNrIjoiaHR0cHM6Ly9jaGFzcXVpLnVwb3J0Lm1lL2FwaS92MS90b3BpYy9objdGMjlUZmtBNnFkZnd3IiwibmV0IjoiMHg0IiwidHlwZSI6InNoYXJlUmVxIiwiaXNzIjoiMm9qRXRVWEJLMko3NWVDQmF6ejR0bmNFV0UxOG9GV3JuZkoifQ.L76FOm2BJu9GAgqpzCcQPFA5zHzmp7OB2poAro_zcjpRYAf6tmL9fpnVXmUhaVO2d1Hkjp36ZirFpgdUU7u08w";
-		$topicUrl = "https://chasqui.uport.me/api/v1/topic/hn7F29TfkA6qdfww";
+		$jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA1NDMzNjMsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL29nOEVzb0NCdXlyWm1ES1giLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.WrohnHHL2M_JFCcCCI_m0NeOUxjuOGOuiH4MaVO8DMRqj6xKEYymXhDBJpvI7HlJLiqL4BLQsq10QxsCkokJ0g";
+		$topicUrl = "https://chasqui.uport.me/api/v1/topic/og8EsoCBuyrZmDKX";
 		$payload = [];
 		$payload["jwt"] = $jwt;
 		$payload["topic"] = $topicUrl;	
@@ -182,6 +196,29 @@ class Uport {
 		echo json_encode($payload);
 
 		die();
+
+
+		function makeHttpCall ($url, $body, $isPost) {
+
+		        $options = array(CURLOPT_URL => $url,
+		                     CURLOPT_HEADER => false,
+		                     CURLOPT_FRESH_CONNECT => true,
+		                     CURLOPT_POSTFIELDS => $body,
+		                     CURLOPT_RETURNTRANSFER => true,
+		                     CURLOPT_POST => $isPost,
+		                     CURLOPT_HTTPHEADER => array( 'Content-Type: application/json')
+		                    );
+
+		        $ch = curl_init();
+
+		        curl_setopt_array($ch, $options);
+
+		        $result = curl_exec($ch);
+
+		        curl_close($ch);
+
+		        return $result;
+		}		
 	}
 
 	/**
