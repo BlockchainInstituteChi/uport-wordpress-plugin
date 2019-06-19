@@ -1,7 +1,6 @@
 <?php
 
 require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
-require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 use Blockchaininstitute\jwtTools as jwtTools;
 
@@ -136,6 +135,8 @@ class Uport {
 
 		$jwtTools = new jwtTools(null);
 
+		error_log('jwt received ' . $jwt);
+
 		// $plainText = $jwtTools->deconstructAndDecode($jwt);
 
 		// error_log(var_dump($plainText));
@@ -168,15 +169,16 @@ class Uport {
 		$jwtBody = (object)[];
 
 		 // "Client ID"
-		// $signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
-		$signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
+		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
+		// $signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
 
 		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
 		$time = time();
 		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
 		$jwtBody->iat 	      = $time;
-		$jwtBody->requested   = ['name', 'email'];
+
+		$jwtBody->requested   = ['name'];
 		$jwtBody->callback    = $topicUrl;
 		$jwtBody->net      	  = "0x4";
 		$jwtBody->exp 	      = $time + 600;
@@ -185,9 +187,14 @@ class Uport {
 		// 2. Create JWT Object
 		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
-		// $jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-		$jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA1NDMzNjMsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL29nOEVzb0NCdXlyWm1ES1giLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.WrohnHHL2M_JFCcCCI_m0NeOUxjuOGOuiH4MaVO8DMRqj6xKEYymXhDBJpvI7HlJLiqL4BLQsq10QxsCkokJ0g";
-		$topicUrl = "https://chasqui.uport.me/api/v1/topic/og8EsoCBuyrZmDKX";
+		$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+
+		error_log('jwt generated ' . $jwt);
+
+		// $topicUrl = "https://chasqui.uport.me/api/v1/topic/dc8iBuOt33AXoZOP";
+
+		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA5NjI0OTgsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL2RjOGlCdU90MzNBWG9aT1AiLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.fSJobPi2te4xkLpSZ8kYbzqQar0fAew2NDPtitH-nH7sfxpw-3ILSKQOyWBqcHIASdXTMwjq-_xbBoV2qkG-Rw";
+		
 		$payload = [];
 		$payload["jwt"] = $jwt;
 		$payload["topic"] = $topicUrl;	
