@@ -41,7 +41,7 @@ $jwtBody->type 		  = "shareReq";
 // 2. Create JWT Object
 $jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
-$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
 
 error_log('jwt generated ' . $jwt);
 
@@ -58,7 +58,7 @@ error_log('jwt generated ' . $jwt);
 
 // Verify		
 
-$isVerified = $jwtTools->verifyJWT($jwt);
+$isVerified = $jwtTools->verify_JWT($jwt);
 
 error_log('isVerified ' . $isVerified); 
 

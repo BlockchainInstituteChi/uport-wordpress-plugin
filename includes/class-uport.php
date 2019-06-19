@@ -141,7 +141,7 @@ class Uport {
 
 		// error_log(var_dump($plainText));
 
-		$isVerified = $jwtTools->verifyJWT($jwt);
+		$isVerified = $jwtTools->verify_JWT($jwt);
 
 		$output = new stdClass();
 
@@ -187,7 +187,7 @@ class Uport {
 		// 2. Create JWT Object
 		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
 
-		$jwt = $jwtTools->createJWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+		$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
 
 		error_log('jwt generated ' . $jwt);
 
