@@ -1,5 +1,9 @@
 <?php
 
+require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
+
+use Blockchaininstitute\jwtTools as jwtTools;
+
 /**
  * The file that defines the core uPort plugin class
  *
@@ -27,6 +31,7 @@
  * @subpackage uPort/includes
  * @author     uPort <support@uport.me>
  */
+
 class Uport {
 
 	/**
@@ -124,6 +129,105 @@ class Uport {
 
 	}
 
+	public static function verifyDisclosureResponse () {
+
+		$jwt = $_POST['disclosureResponse'];
+
+		$jwtTools = new jwtTools(null);
+
+		error_log('jwt received ' . $jwt);
+
+		// $plainText = $jwtTools->deconstructAndDecode($jwt);
+
+		// error_log(var_dump($plainText));
+
+		$isVerified = $jwtTools->verify_JWT($jwt);
+
+		$output = new stdClass();
+
+		error_log('isVerified: ' . $isVerified);
+
+
+
+	}
+
+	public static function generateDisclosureRequest () {
+		$jwtTools = new jwtTools(null);
+
+		// Prepare the JWT Header
+		// 1. Initialize JWT Values
+		$jwtHeader = (object)[];
+		$jwtHeader->typ = 'JWT'; // ""
+		$jwtHeader->alg = 'ES256K'; // ""
+
+		// 2. Create JWT Object
+		$jwtHeaderJson = json_encode($jwtHeader, JSON_UNESCAPED_SLASHES);
+
+
+		// Prepare the JWT Body
+		// 1. Initialize JWT Values
+		$jwtBody = (object)[];
+
+		 // "Client ID"
+		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
+		// $signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
+
+		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
+
+		$time = time();
+		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
+		$jwtBody->iat 	      = $time;
+
+		$jwtBody->requested   = ['name'];
+		$jwtBody->callback    = $topicUrl;
+		$jwtBody->net      	  = "0x4";
+		$jwtBody->exp 	      = $time + 600;
+		$jwtBody->type 		  = "shareReq";
+
+		// 2. Create JWT Object
+		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
+
+		$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
+
+		error_log('jwt generated ' . $jwt);
+
+		// $topicUrl = "https://chasqui.uport.me/api/v1/topic/dc8iBuOt33AXoZOP";
+
+		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA5NjI0OTgsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL2RjOGlCdU90MzNBWG9aT1AiLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.fSJobPi2te4xkLpSZ8kYbzqQar0fAew2NDPtitH-nH7sfxpw-3ILSKQOyWBqcHIASdXTMwjq-_xbBoV2qkG-Rw";
+		
+		$payload = [];
+		$payload["jwt"] = $jwt;
+		$payload["topic"] = $topicUrl;	
+		error_log('jwt');
+		error_log($jwt);
+		echo json_encode($payload);
+
+		die();
+
+
+		function makeHttpCall ($url, $body, $isPost) {
+
+		        $options = array(CURLOPT_URL => $url,
+		                     CURLOPT_HEADER => false,
+		                     CURLOPT_FRESH_CONNECT => true,
+		                     CURLOPT_POSTFIELDS => $body,
+		                     CURLOPT_RETURNTRANSFER => true,
+		                     CURLOPT_POST => $isPost,
+		                     CURLOPT_HTTPHEADER => array( 'Content-Type: application/json')
+		                    );
+
+		        $ch = curl_init();
+
+		        curl_setopt_array($ch, $options);
+
+		        $result = curl_exec($ch);
+
+		        curl_close($ch);
+
+		        return $result;
+		}		
+	}
+
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
@@ -164,13 +268,36 @@ class Uport {
 	 * @since    1.0.0
 	 * @access   private
 	 */
+
+
+
 	private function define_public_hooks() {
 
 		$plugin_public = new Uport_Public( $this->get_plugin_name(), $this->get_version() );
-
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_scripts', 1);
+		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
 
+		// This probably shouldn't live here, but it's going to have to for now because nothing else works
+		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', array(__CLASS__, 'generateDisclosureRequest' ));
+		add_action( 'wp_ajax_nopriv_verifyDisclosureResponse', array(__CLASS__, 'verifyDisclosureResponse' ));
+		// error_log('set disclosure request action');
+
+
+		function generate_string() {
+			$strength = 16;
+			$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		    $input_length = strlen($permitted_chars);
+		    $random_string = '';
+		    for($i = 0; $i < $strength; $i++) {
+		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+		        $random_string .= $random_character;
+		    }
+		    return $random_string;
+		}
+		 
+		
 	}
 
 	/**
@@ -179,7 +306,9 @@ class Uport {
 	 * @since    1.0.0
 	 */
 	public function run() {
+
 		$this->loader->run();
+
 	}
 
 	/**

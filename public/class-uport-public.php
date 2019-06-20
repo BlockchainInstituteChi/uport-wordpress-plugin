@@ -62,6 +62,24 @@ class Uport_Public {
 
 	}
 
+	public function login_scripts () {
+		wp_register_script( 'jquery', plugin_dir_url( __FILE__ ) . 'js/jquery.js' );
+		wp_register_script( 'uport-js', plugin_dir_url( __FILE__ ) . 'js/uport-js.js' );
+		wp_register_script( 'qrcode', plugin_dir_url( __FILE__ ) . 'js/qrcode.js' );
+		// wp_register_script( 'test', plugin_dir_url( __FILE__ ) . 'js/test.js' );
+
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('uport-js');
+		wp_enqueue_script('qrcode');
+		// wp_enqueue_script('test', array('jquery'), '1.0', true );
+	}
+
+	public function login_styles () {
+		wp_register_style( 'uport-js', plugin_dir_url( __FILE__ ) . 'css/uport-login.css' );
+
+		wp_enqueue_style('uport-js');
+	}
+	
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
 	 *
@@ -69,8 +87,8 @@ class Uport_Public {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
-
+		// This was put here by raininja but doesn't seem to be necessary
+		// wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/uport-public.js', array( 'jquery' ), $this->version, false );
 	}
 
 }
