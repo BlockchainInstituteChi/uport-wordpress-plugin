@@ -137,9 +137,9 @@ class Uport {
 
 		error_log('jwt received ' . $jwt);
 
-		// $plainText = $jwtTools->deconstructAndDecode($jwt);
+		$plainText = json_decode(base64_decode( urldecode( ( $jwtTools->deconstruct_and_decode( $jwt ) )['body'] ) ));
 
-		// error_log(var_dump($plainText));
+		error_log(print_r($plainText, TRUE));
 
 		$isVerified = $jwtTools->verify_JWT($jwt);
 
@@ -169,8 +169,7 @@ class Uport {
 		$jwtBody = (object)[];
 
 		 // "Client ID"
-		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
-		// $signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
+		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; 
 
 		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
@@ -178,7 +177,7 @@ class Uport {
 		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
 		$jwtBody->iat 	      = $time;
 
-		$jwtBody->requested   = ['name'];
+		$jwtBody->requested   = ['name','email'];
 		$jwtBody->callback    = $topicUrl;
 		$jwtBody->net      	  = "0x4";
 		$jwtBody->exp 	      = $time + 600;
@@ -189,12 +188,6 @@ class Uport {
 
 		$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
 
-		error_log('jwt generated ' . $jwt);
-
-		// $topicUrl = "https://chasqui.uport.me/api/v1/topic/dc8iBuOt33AXoZOP";
-
-		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA5NjI0OTgsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL2RjOGlCdU90MzNBWG9aT1AiLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.fSJobPi2te4xkLpSZ8kYbzqQar0fAew2NDPtitH-nH7sfxpw-3ILSKQOyWBqcHIASdXTMwjq-_xbBoV2qkG-Rw";
-		
 		$payload = [];
 		$payload["jwt"] = $jwt;
 		$payload["topic"] = $topicUrl;	
