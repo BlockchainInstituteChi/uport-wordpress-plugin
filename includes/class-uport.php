@@ -144,6 +144,19 @@ class Uport {
  			error_log('Received valid payload: ');
 			error_log(print_r($payload, TRUE));
 
+			if( empty( $payload['email'] ) ) { 
+
+				error_log( 'email: ' );
+				error_log( $payload['email'] );
+				echo "{'error':'no email provided','errcode':'2'}";
+				
+
+			} else {
+				$user = get_user_by('email', $payload['email']);
+				error_log(json_encode($user));
+
+			}
+			error_log('made it to the end of the login function. Email was: '. $payload['email'] );
 		}
 
 		$jwt = $_POST['disclosureResponse'];
@@ -247,28 +260,6 @@ class Uport {
 
 		die();
 
-
-		function makeHttpCall ($url, $body, $isPost) {
-
-		        $options = array(CURLOPT_URL => $url,
-		                     CURLOPT_HEADER => false,
-		                     CURLOPT_FRESH_CONNECT => true,
-		                     CURLOPT_POSTFIELDS => $body,
-		                     CURLOPT_RETURNTRANSFER => true,
-		                     CURLOPT_POST => $isPost,
-		                     CURLOPT_HTTPHEADER => array( 'Content-Type: application/json')
-		                    );
-
-		        $ch = curl_init();
-
-		        curl_setopt_array($ch, $options);
-
-		        $result = curl_exec($ch);
-
-		        curl_close($ch);
-
-		        return $result;
-		}		
 	}
 
 	/**
