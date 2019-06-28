@@ -7,6 +7,7 @@ const signingKey = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce
 
 const appName = 'The Blockchain Institute';
 
+var preCounter = 0;
 
 const uriHandler = (uri) => {
   displayQRCodeDiv (uri)
@@ -36,13 +37,18 @@ function callVerifyEndpoint ( access_token ) {
     'action': 'verify_disclosure_response',
     'disclosureResponse' : access_token
   };
-  console.log('calling', data)
-  // We can also pass the url value separately from ajaxurl for front end AJAX implementations
-  jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
-    response = JSON.parse(response);
-    console.log('Called server and got response : ', response);
+  
+  if ( 1 != preCounter ) {
+    console.log('calling', data)
+    
+    // We can also pass the url value separately from ajaxurl for front end AJAX implementations
+    jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
+      preCounter = 1;
+      response = JSON.parse(response);
+      console.log('Called server and got response : ', response);
 
-  });
+    });
+  }
 
 }
 
@@ -69,7 +75,7 @@ function setCredentials ( ) {
     pollForResult('access_token', response.topic, function(result) {
       console.log('pollForResult returned ', result)
       if ( typeof( result.message.access_token ) != 'undefined'  ) {
-        console.log('valid message found');
+        console.log('valid message found; preCounter is ', preCounter);
         callVerifyEndpoint(result.message.access_token);
       }
     }, null);

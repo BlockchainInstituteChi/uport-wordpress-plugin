@@ -5,7 +5,7 @@
 
   echo "\r\nStarting verifyJWT.php \r\n";
 
-  $jwtTools = new jwtTools('make_http_call_b');
+  $jwtTools = new jwtTools(null);
 
   $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NTY5MTI4MzMsInJlcXVlc3RlZCI6WyJuYW1lIl0sImNhbGxiYWNrIjoiaHR0cHM6Ly9jaGFzcXVpLnVwb3J0Lm1lL2FwaS92MS90b3BpYy8xT3pTalFSRnJGOTQ4TExrIiwibmV0IjoiMHg0IiwidHlwZSI6InNoYXJlUmVxIiwiaXNzIjoiMm9qRXRVWEJLMko3NWVDQmF6ejR0bmNFV0UxOG9GV3JuZkoifQ.eeR7QXHZynWehtl7QsLbFSUgegudarGzuT2YqEUFPRUI3VOJwBVL+2zw0/RDz3kJX7sRdpZwdH0ANKdFz2w4UA";
 

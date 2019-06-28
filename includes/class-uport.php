@@ -32,6 +32,7 @@ use Blockchaininstitute\jwtTools as jwtTools;
  * @author     uPort <support@uport.me>
  */
 
+if ( !class_exists('Uport') ) {
 class Uport {
 
 	/**
@@ -138,6 +139,12 @@ class Uport {
 	 */
 
 	public function verify_disclosure_response () {
+ 		
+ 		function login_with_uport ($payload) {
+ 			error_log('Received valid payload: ');
+			error_log(print_r($payload, TRUE));
+
+		}
 
 		$jwt = $_POST['disclosureResponse'];
 
@@ -154,12 +161,13 @@ class Uport {
 		// Check the response to see if it's valid
 		if ( 1 == $jwtTools->verify_JWT($jwt) ) {
 			// Jwt signature is valid
-			$payload          = [
+			$payload = [
 				'name'  => $plainText->own->name,
 				'email' => $plainText->own->email,
 			];
 
-			$this->login_with_uport($payload);
+			// $this->login_with_uport($payload);
+			login_with_uport($payload);
 
 		} else {
 
@@ -171,20 +179,20 @@ class Uport {
 
 	}
 
-	/**
-	 * login_with_uport 
-	 *
-	 * @param $payload Payload receives a valid jwt payload with a name and email index which should be able to be accessed as $payload['name'] and $payload['email']
-	 *
-	 */
+	// *
+	//  * login_with_uport 
+	//  *
+	//  * @param $payload Payload receives a valid jwt payload with a name and email index which should be able to be accessed as $payload['name'] and $payload['email']
+	//  *
+	 
 
-	private static function login_with_uport ($payload) {
-		error_log(print_r($payload, TRUE));
-
-
+	// private static function login_with_uport ($payload) {
+	// 	error_log(print_r($payload, TRUE));
 
 
-	}
+
+
+	// }
 
 	/**
 	 * VerifyDisclosureRequest 
@@ -377,4 +385,5 @@ class Uport {
 		return $this->version;
 	}
 
+}
 }
