@@ -33,7 +33,7 @@ function callVerifyEndpoint ( access_token ) {
 	// })
 
   var data = {
-    'action': 'verifyDisclosureResponse',
+    'action': 'verify_disclosure_response',
     'disclosureResponse' : access_token
   };
   console.log('calling', data)
@@ -58,7 +58,7 @@ function setCredentials ( ) {
   // })
 
   var data = {
-    'action': 'generateDisclosureRequest'     // We pass php values differently!
+    'action': 'generate_disclosure_request'     // We pass php values differently!
   };
   console.log('calling', data)
   // We can also pass the url value separately from ajaxurl for front end AJAX implementations

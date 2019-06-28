@@ -129,7 +129,15 @@ class Uport {
 
 	}
 
-	public static function verifyDisclosureResponse () {
+
+	/**
+	 * verify_disclosure_response 
+	 *
+	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 *
+	 */
+
+	public function verify_disclosure_response () {
 
 		$jwt = $_POST['disclosureResponse'];
 
@@ -143,15 +151,49 @@ class Uport {
 
 		$isVerified = $jwtTools->verify_JWT($jwt);
 
-		$output = new stdClass();
+		// Check the response to see if it's valid
+		if ( 1 == $jwtTools->verify_JWT($jwt) ) {
+			// Jwt signature is valid
+			$payload          = [
+				'name'  => $plainText->own->name,
+				'email' => $plainText->own->email,
+			];
 
-		error_log('isVerified: ' . $isVerified);
+			$this->login_with_uport($payload);
+
+		} else {
+
+			echo "{'success':false;'error':'imvalid jwt';}"; 
+
+		}
 
 
 
 	}
 
-	public static function generateDisclosureRequest () {
+	/**
+	 * login_with_uport 
+	 *
+	 * @param $payload Payload receives a valid jwt payload with a name and email index which should be able to be accessed as $payload['name'] and $payload['email']
+	 *
+	 */
+
+	private static function login_with_uport ($payload) {
+		error_log(print_r($payload, TRUE));
+
+
+
+
+	}
+
+	/**
+	 * VerifyDisclosureRequest 
+	 *
+	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 *
+	 */
+
+	public static function generate_disclosure_request () {
 		$jwtTools = new jwtTools(null);
 
 		// Prepare the JWT Header
@@ -273,8 +315,8 @@ class Uport {
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
 
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
-		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', array(__CLASS__, 'generateDisclosureRequest' ));
-		add_action( 'wp_ajax_nopriv_verifyDisclosureResponse', array(__CLASS__, 'verifyDisclosureResponse' ));
+		add_action( 'wp_ajax_nopriv_generate_disclosure_request', array(__CLASS__, 'generate_disclosure_request' ));
+		add_action( 'wp_ajax_nopriv_verify_disclosure_response', array(__CLASS__, 'verify_disclosure_response' ));
 		// error_log('set disclosure request action');
 
 

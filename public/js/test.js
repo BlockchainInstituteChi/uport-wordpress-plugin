@@ -16,7 +16,7 @@ console.log('test.js enqueued properly');
 
 // jQuery(document).ready(function($) {
 // 	var data = {
-// 		'action': 'generateDisclosureRequest'     // We pass php values differently!
+// 		'action': 'generate_disclosure_request'     // We pass php values differently!
 // 	};
 
 // 	// We can also pass the url value separately from ajaxurl for front end AJAX implementations
