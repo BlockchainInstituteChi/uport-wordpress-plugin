@@ -227,15 +227,14 @@ class Uport {
 				wp_set_auth_cookie( $user_id, true );
 				if( !$meta_updated ) {
 					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-
-					error_log('login successful, redirecting to ' . get_home_url());
-					$successPayload = [
-						'success'  => true,
-						'redirect' => get_home_url(),
-					];
-
-					wp_send_json( $successPayload );	
 				}
+				error_log('login successful, redirecting to ' . get_home_url());
+				$successPayload = [
+					'success'  => true,
+					'redirect' => get_home_url(),
+				];
+
+				wp_send_json( $successPayload );	
 
 				die ();
 
@@ -243,8 +242,10 @@ class Uport {
 
 				$failurePayload = [
 					'success' => false,
+					'user'    => $user,
+					'newUser' => $newUser,
 				];
-
+				error_log('failed');
 				wp_send_json( $failurePayload );		
 				die();
 			}
