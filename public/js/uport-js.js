@@ -44,7 +44,7 @@ function callVerifyEndpoint ( access_token ) {
     // We can also pass the url value separately from ajaxurl for front end AJAX implementations
     jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
       preCounter = 1;
-      response = JSON.parse(response);
+      // response = JSON.parse(response);
       console.log('Called server and got response : ', response);
 
     });
