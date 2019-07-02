@@ -225,19 +225,29 @@ class Uport {
 			}
 			if( is_numeric( $user_id ) ) {
 				wp_set_auth_cookie( $user_id, true );
-				if( !$meta_updated )
+				if( !$meta_updated ) {
 					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-					// do_action( 'fbl/after_login', $user, $user_id);
+
+					error_log('login successful, redirecting to ' . get_home_url());
+					$successPayload = [
+						'success'  => true,
+						'redirect' => get_home_url(),
+					];
+
+					wp_send_json( $successPayload );	
+				}
+
+				die ();
+
+			} else {
+
+				$failurePayload = [
+					'success' => false,
+				];
+
+				wp_send_json( $failurePayload );		
+				die();
 			}
-
-			$successPayload = [
-				'success' => true,
-				'status'  => $status,
-				'user'    => $user,
-			];
-
-			wp_send_json( $successPayload );		
-			die();
 
 		}
 

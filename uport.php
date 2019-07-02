@@ -30,6 +30,9 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+ob_clean();
+ob_start();
+
 /**
  * Current plugin version.
  * Update this as you release new versions.

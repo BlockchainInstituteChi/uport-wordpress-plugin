@@ -46,6 +46,11 @@ function callVerifyEndpoint ( access_token ) {
       preCounter = 1;
       // response = JSON.parse(response);
       console.log('Called server and got response : ', response);
+      if ( true === response.success ) {
+        window.location = response.redirect;
+      } else {
+        alert ( 'Invalid jwt received. Please contact your administrator.')
+      }
 
     });
   }
