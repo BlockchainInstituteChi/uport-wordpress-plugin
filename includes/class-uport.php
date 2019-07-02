@@ -32,6 +32,7 @@ use Blockchaininstitute\jwtTools as jwtTools;
  * @author     uPort <support@uport.me>
  */
 
+if ( !class_exists('Uport') ) {
 class Uport {
 
 	/**
@@ -129,7 +130,147 @@ class Uport {
 
 	}
 
-	public static function verifyDisclosureResponse () {
+
+	/**
+	 * verify_disclosure_response 
+	 *
+	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 *
+	 */
+
+	public static function verify_disclosure_response () {
+ 		
+ 		function getUserBy( $user ) {
+
+			// if the user is logged in, pass curent user
+			if( is_user_logged_in() )
+				return wp_get_current_user();
+
+			$user_data = get_user_by('email', $user['user_email']);
+
+			if( ! $user_data ) {
+				$users     = get_users(
+					array(
+						'meta_key'    => '_uport_mnid',
+						'meta_value'  => $user['uport_mnid'],
+						'number'      => 1,
+						'count_total' => false
+					)
+				);
+				if( is_array( $users ) ) $user_data = reset( $users );
+			}
+			return $user_data;
+		}
+
+		function login_or_register_user ( $name, $email, $mnid ) {
+
+			$user = [
+				'user_email' => $email,
+				'uport_mnid' => $mnid,
+				'uport_name' => $name,
+			];
+
+			$user_obj = getUserBy( $user );
+
+			$meta_updated = false;
+
+			if ( $user_obj ){
+				error_log('user found');
+				error_log(json_encode($user_obj));
+				$user_id = $user_obj->ID;
+				$status = array( 'success' => $user_id, 'method' => 'login');
+				// check if user email exist or update accordingly
+				if( empty( $user_obj->user_email ) )
+					wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+
+			} else {
+				error_log('user not found');
+				if( ! get_option('users_can_register') || apply_filters( 'fbl/registration_disabled', false ) ) {
+					// if( ! apply_filters( 'fbl/bypass_registration_disabled', false ) )
+					// $this->ajax_response( array( 'error' => __( 'User registration is disabled', 'fbl' ) ) );
+				}
+				// generate a new username
+				$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
+				error_log('user is');
+				error_log(json_encode($user));
+
+				// NOTE: Defaults to subscriber role for new users...
+				$newUser = [
+					'user_login'   => $user['user_login'], 
+					'user_pass'    => bin2hex(openssl_random_pseudo_bytes(10)), 
+					'nickname'     => $user['user_login'], 
+					'display_name' => $user['user_login'], 
+					'email'        => $user['user_email'],
+					'role'         => 'subscriber',
+				];
+
+				error_log('newuser is');
+				error_log(json_encode($newUser));
+
+				$user_id = wp_insert_user($newUser);
+
+				if( !is_wp_error( $user_id ) ) {
+					// $this->notify_new_registration( $user_id );
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+					$meta_updated = true;
+					$status = array( 'success' => $user_id, 'method' => 'registration' );
+
+					error_log('userId is');
+					error_log(json_encode($user_id));
+
+					error_log('status is');
+					error_log(json_encode($status));
+				}
+			}
+			if( is_numeric( $user_id ) ) {
+				wp_set_auth_cookie( $user_id, true );
+				if( !$meta_updated ) {
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+				}
+				error_log('login successful, redirecting to ' . get_home_url());
+				$successPayload = [
+					'success'  => true,
+					'redirect' => get_home_url(),
+				];
+
+				wp_send_json( $successPayload );	
+
+				die ();
+
+			} else {
+
+				$failurePayload = [
+					'success' => false,
+					'user'    => $user,
+					'newUser' => $newUser,
+				];
+				error_log('failed');
+				wp_send_json( $failurePayload );		
+				die();
+			}
+
+		}
+
+ 		function login_with_uport ($payload) {
+ 			error_log('Received valid payload: ');
+			error_log(print_r($payload, TRUE));
+
+			if( empty( $payload['email'] ) ) { 
+
+				error_log( 'email: ' );
+				error_log( $payload['email'] );
+				echo "{'error':'no email provided','errcode':'2'}";
+				
+
+			} else {
+				// $user = login_or_register_user( $payload['name'], $payload['email'], $payload['mnid']);
+				// error_log(json_encode($user));
+				return login_or_register_user( $payload['name'], $payload['email'], $payload['mnid'] );
+
+			}
+			error_log('made it to the end of the login function. Email was: '. $payload['email'] );
+		}
 
 		$jwt = $_POST['disclosureResponse'];
 
@@ -137,21 +278,57 @@ class Uport {
 
 		error_log('jwt received ' . $jwt);
 
-		// $plainText = $jwtTools->deconstructAndDecode($jwt);
+		$plainText = json_decode(base64_decode( urldecode( ( $jwtTools->deconstruct_and_decode( $jwt ) )['body'] ) ));
 
-		// error_log(var_dump($plainText));
+		error_log(print_r($plainText, TRUE));
 
 		$isVerified = $jwtTools->verify_JWT($jwt);
 
-		$output = new stdClass();
+		// Check the response to see if it's valid
+		if ( 1 == $jwtTools->verify_JWT($jwt) ) {
+			// Jwt signature is valid
+			$payload = [
+				'name'  => $plainText->own->name,
+				'email' => $plainText->own->email,
+				'mnid'  => $plainText->nad,
+			];
 
-		error_log('isVerified: ' . $isVerified);
+			// $this->login_with_uport($payload);
+			login_with_uport($payload);
+
+		} else {
+
+			echo "{'success':false;'error':'imvalid jwt';}"; 
+
+		}
 
 
 
 	}
 
-	public static function generateDisclosureRequest () {
+	// *
+	//  * login_with_uport 
+	//  *
+	//  * @param $payload Payload receives a valid jwt payload with a name and email index which should be able to be accessed as $payload['name'] and $payload['email']
+	//  *
+	 
+
+	// private static function login_with_uport ($payload) {
+	// 	error_log(print_r($payload, TRUE));
+
+
+
+
+	// }
+
+	/**
+	 * generate_disclosure_request 
+	 *
+	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 *
+	 */
+
+	public static function generate_disclosure_request () {
 		$jwtTools = new jwtTools(null);
 
 		// Prepare the JWT Header
@@ -169,8 +346,7 @@ class Uport {
 		$jwtBody = (object)[];
 
 		 // "Client ID"
-		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; // "Private Key"
-		// $signingKey = "601339e8cef49ebcf2a85ef6b91210f3c19fd220fb23d77050bbd15758e7f3cc";
+		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; 
 
 		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
@@ -178,7 +354,7 @@ class Uport {
 		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
 		$jwtBody->iat 	      = $time;
 
-		$jwtBody->requested   = ['name'];
+		$jwtBody->requested   = ['name','email'];
 		$jwtBody->callback    = $topicUrl;
 		$jwtBody->net      	  = "0x4";
 		$jwtBody->exp 	      = $time + 600;
@@ -189,12 +365,6 @@ class Uport {
 
 		$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
 
-		error_log('jwt generated ' . $jwt);
-
-		// $topicUrl = "https://chasqui.uport.me/api/v1/topic/dc8iBuOt33AXoZOP";
-
-		// $jwt = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1NjA5NjI0OTgsInJlcXVlc3RlZCI6WyJuYW1lIiwiZW1haWwiXSwiY2FsbGJhY2siOiJodHRwczovL2NoYXNxdWkudXBvcnQubWUvYXBpL3YxL3RvcGljL2RjOGlCdU90MzNBWG9aT1AiLCJuZXQiOiIweDQiLCJ0eXBlIjoic2hhcmVSZXEiLCJpc3MiOiIyb2pFdFVYQksySjc1ZUNCYXp6NHRuY0VXRTE4b0ZXcm5mSiJ9.fSJobPi2te4xkLpSZ8kYbzqQar0fAew2NDPtitH-nH7sfxpw-3ILSKQOyWBqcHIASdXTMwjq-_xbBoV2qkG-Rw";
-		
 		$payload = [];
 		$payload["jwt"] = $jwt;
 		$payload["topic"] = $topicUrl;	
@@ -204,28 +374,6 @@ class Uport {
 
 		die();
 
-
-		function makeHttpCall ($url, $body, $isPost) {
-
-		        $options = array(CURLOPT_URL => $url,
-		                     CURLOPT_HEADER => false,
-		                     CURLOPT_FRESH_CONNECT => true,
-		                     CURLOPT_POSTFIELDS => $body,
-		                     CURLOPT_RETURNTRANSFER => true,
-		                     CURLOPT_POST => $isPost,
-		                     CURLOPT_HTTPHEADER => array( 'Content-Type: application/json')
-		                    );
-
-		        $ch = curl_init();
-
-		        curl_setopt_array($ch, $options);
-
-		        $result = curl_exec($ch);
-
-		        curl_close($ch);
-
-		        return $result;
-		}		
 	}
 
 	/**
@@ -280,8 +428,8 @@ class Uport {
 		$this->loader->add_action( 'login_enqueue_scripts', $plugin_public, 'login_styles', 10);
 
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
-		add_action( 'wp_ajax_nopriv_generateDisclosureRequest', array(__CLASS__, 'generateDisclosureRequest' ));
-		add_action( 'wp_ajax_nopriv_verifyDisclosureResponse', array(__CLASS__, 'verifyDisclosureResponse' ));
+		add_action( 'wp_ajax_nopriv_generate_disclosure_request', array(__CLASS__, 'generate_disclosure_request' ));
+		add_action( 'wp_ajax_nopriv_verify_disclosure_response', array(__CLASS__, 'verify_disclosure_response' ));
 		// error_log('set disclosure request action');
 
 
@@ -342,4 +490,5 @@ class Uport {
 		return $this->version;
 	}
 
+}
 }
