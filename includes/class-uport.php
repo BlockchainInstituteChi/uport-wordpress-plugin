@@ -140,6 +140,75 @@ class Uport {
 
 	public function verify_disclosure_response () {
  		
+ 		function getUserBy( $user ) {
+
+			// if the user is logged in, pass curent user
+			if( is_user_logged_in() )
+				return wp_get_current_user();
+
+			$user_data = get_user_by('email', $user['user_email']);
+
+			if( ! $user_data ) {
+				$users     = get_users(
+					array(
+						'meta_key'    => '_uport_mnid',
+						'meta_value'  => $user['uport_mnid'],
+						'number'      => 1,
+						'count_total' => false
+					)
+				);
+				if( is_array( $users ) )
+					$user_data = reset( $users );
+			}
+			return $user_data;
+		}
+
+		function login_or_register_user ( $name, $email, $mnid ) {
+
+			$user = [
+				'user_email' => $email,
+				'uport_mnid' => $mnid,
+				'uport_name' => $name,
+			];
+
+			$user_obj = $this->getUserBy( $user );
+
+			$meta_updated = false;
+
+			if ( $user_obj ){
+				$user_id = $user_obj->ID;
+				$status = array( 'success' => $user_id, 'method' => 'login');
+				// check if user email exist or update accordingly
+				if( empty( $user_obj->user_email ) )
+					wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
+
+			} else {
+				if( ! get_option('users_can_register') || apply_filters( 'fbl/registration_disabled', false ) ) {
+					if( ! apply_filters( 'fbl/bypass_registration_disabled', false ) )
+						$this->ajax_response( array( 'error' => __( 'User registration is disabled', 'fbl' ) ) );
+				}
+				// generate a new username
+				$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
+
+				$user_id = $this->register_user( apply_filters( 'fbl/user_data_register',$user ) );
+
+				if( !is_wp_error( $user_id ) ) {
+					$this->notify_new_registration( $user_id );
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+					$meta_updated = true;
+					$status = array( 'success' => $user_id, 'method' => 'registration' );
+				}
+			}
+			if( is_numeric( $user_id ) ) {
+				wp_set_auth_cookie( $user_id, true );
+				if( !$meta_updated )
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+				// do_action( 'fbl/after_login', $user, $user_id);
+			}
+			echo "{success: true}";		
+
+		}
+
  		function login_with_uport ($payload) {
  			error_log('Received valid payload: ');
 			error_log(print_r($payload, TRUE));
