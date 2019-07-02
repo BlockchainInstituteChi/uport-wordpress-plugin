@@ -175,27 +175,52 @@ class Uport {
 			$meta_updated = false;
 
 			if ( $user_obj ){
+				error_log('user found');
+				error_log(json_encode($user_obj));
 				$user_id = $user_obj->ID;
 				$status = array( 'success' => $user_id, 'method' => 'login');
 				// check if user email exist or update accordingly
 				if( empty( $user_obj->user_email ) )
 					wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
+					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
 
 			} else {
+				error_log('user not found');
 				if( ! get_option('users_can_register') || apply_filters( 'fbl/registration_disabled', false ) ) {
 					// if( ! apply_filters( 'fbl/bypass_registration_disabled', false ) )
 					// $this->ajax_response( array( 'error' => __( 'User registration is disabled', 'fbl' ) ) );
 				}
 				// generate a new username
 				$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
+				error_log('user is');
+				error_log(json_encode($user));
 
-				// $user_id = $this->register_user( apply_filters( 'fbl/user_data_register',$user ) );
+				// NOTE: Defaults to subscriber role for new users...
+				$newUser = [
+					'user_login'   => $user['user_login'], 
+					'user_pass'    => bin2hex(openssl_random_pseudo_bytes(10)), 
+					'nickname'     => $user['user_login'], 
+					'display_name' => $user['user_login'], 
+					'email'        => $user['user_email'],
+					'role'         => 'subscriber',
+				];
+
+				error_log('newuser is');
+				error_log(json_encode($newUser));
+
+				$user_id = wp_insert_user($newUser);
 
 				if( !is_wp_error( $user_id ) ) {
 					// $this->notify_new_registration( $user_id );
 					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
 					$meta_updated = true;
 					$status = array( 'success' => $user_id, 'method' => 'registration' );
+
+					error_log('userId is');
+					error_log(json_encode($user_id));
+
+					error_log('status is');
+					error_log(json_encode($status));
 				}
 			}
 			if( is_numeric( $user_id ) ) {
@@ -207,6 +232,8 @@ class Uport {
 
 			$successPayload = [
 				'success' => true,
+				'status'  => $status,
+				'user'    => $user,
 			];
 
 			wp_send_json( $successPayload );		
