@@ -139,7 +139,7 @@ class Uport {
 	 */
 
 	public static function verify_disclosure_response () {
- 		
+
  		function getUserBy( $user ) {
 
 			// if the user is logged in, pass curent user
@@ -329,7 +329,24 @@ class Uport {
 	 */
 
 	public static function generate_disclosure_request () {
+
+		function generate_string() {
+			$strength = 16;
+			$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		    $input_length = strlen($permitted_chars);
+		    $random_string = '';
+		    for($i = 0; $i < $strength; $i++) {
+		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+		        $random_string .= $random_character;
+		    }
+		    return $random_string;
+		}
+
 		$jwtTools = new jwtTools(null);
+		$uport_options = get_option('uport');
+
+		error_log('options returned');
+		error_log(json_encode($uport_options));
 
 		// Prepare the JWT Header
 		// 1. Initialize JWT Values
@@ -345,13 +362,15 @@ class Uport {
 		// 1. Initialize JWT Values
 		$jwtBody = (object)[];
 
+		$signingKey = "";
 		 // "Client ID"
-		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; 
+		if (isset($uport_options['uport-key']) && !empty($uport_options['uport-key'])) $signingKey  = $uport_options['uport-key'];
 
 		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
 		$time = time();
-		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
+		$jwtBody->iss         = "";
+		if (isset($uport_options['uport-mnid']) && !empty($uport_options['uport-key'])) $jwtBody->iss         =  get_option('uport')['uport-mnid'];
 		$jwtBody->iat 	      = $time;
 
 		$jwtBody->requested   = ['name','email'];
@@ -407,6 +426,13 @@ class Uport {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
+		// Add menu item
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_admin_menu' );
+		 
+		// Add Settings link to the plugin
+		$plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
+		$this->loader->add_filter( 'plugin_action_links_' . $plugin_basename, $plugin_admin, 'add_action_links' );
+		$this->loader->add_action('admin_init', $plugin_admin, 'options_update');
 	}
 
 	/**
@@ -432,18 +458,6 @@ class Uport {
 		add_action( 'wp_ajax_nopriv_verify_disclosure_response', array(__CLASS__, 'verify_disclosure_response' ));
 		// error_log('set disclosure request action');
 
-
-		function generate_string() {
-			$strength = 16;
-			$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		    $input_length = strlen($permitted_chars);
-		    $random_string = '';
-		    for($i = 0; $i < $strength; $i++) {
-		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
-		        $random_string .= $random_character;
-		    }
-		    return $random_string;
-		}
 		 
 		
 	}

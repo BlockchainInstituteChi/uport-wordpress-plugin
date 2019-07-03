@@ -73,4 +73,58 @@ class Uport_Admin {
 
 	}
 
+	/**
+	* Register the administration menu for this plugin into the WordPress Dashboard menu.
+	*
+	* @since 1.0.0
+	*/
+	 
+	public function add_plugin_admin_menu() {
+		add_options_page( 'Uport Options Settings', 'Uport', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page'));
+	}
+	 
+	/**
+	* Add settings action link to the plugins page.
+	*
+	* @since 1.0.0
+	*/
+
+	public function options_update() {
+		error_log('options update ran');
+
+	    register_setting($this->plugin_name, $this->plugin_name, array($this, 'validate'));
+	}
+
+	 
+	public function add_action_links( $links ) {
+		$settings_link = array(
+			'<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_name ) . '">' . __('Settings', $this->plugin_name) . '</a>',
+		);
+		return array_merge( $settings_link, $links );
+	}
+
+
+	// This isn't finished yet. Need to add text field validation for the key and mnid
+	public function validate($input) {
+
+		error_log('validate ran');
+		     
+	    $valid = array();
+	 
+	    if (isset($input['uport-mnid']) && !empty($input['uport-mnid'])) $valid['uport-mnid'] = $input['uport-mnid'];
+	    if (isset($input['uport-key']) && !empty($input['uport-key'])) $valid['uport-key'] = $input['uport-key'];
+
+	    return $valid;
+	}
+	 
+	/**
+	* Render the settings page for this plugin.
+	*
+	* @since 1.0.0
+	*/
+	 
+	public function display_plugin_setup_page() {
+		include_once( 'partials/uport-admin-display.php' );
+	}
+
 }
