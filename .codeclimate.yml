@@ -3,3 +3,5 @@ plugins:
     enabled: true
     config:
       standard: "WordPress-Core"
+    exclude_patterns:
+    - "public/js/*"
