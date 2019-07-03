@@ -343,6 +343,10 @@ class Uport {
 		}
 
 		$jwtTools = new jwtTools(null);
+		$uport_options = get_option('uport');
+
+		error_log('options returned');
+		error_log(json_encode($uport_options));
 
 		// Prepare the JWT Header
 		// 1. Initialize JWT Values
@@ -358,13 +362,15 @@ class Uport {
 		// 1. Initialize JWT Values
 		$jwtBody = (object)[];
 
+		$signingKey = "";
 		 // "Client ID"
-		$signingKey  = 'cb89a98b53eec9dc58213e67d04338350e7c15a7f7643468d8081ad2c5ce5480'; 
+		if (isset($uport_options['uport-key']) && !empty($uport_options['uport-key'])) $signingKey  = $uport_options['uport-key'];
 
 		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
 
 		$time = time();
-		$jwtBody->iss         = '2ojEtUXBK2J75eCBazz4tncEWE18oFWrnfJ';
+		$jwtBody->iss         = "";
+		if (isset($uport_options['uport-mnid']) && !empty($uport_options['uport-key'])) $jwtBody->iss         =  get_option('uport')['uport-mnid'];
 		$jwtBody->iat 	      = $time;
 
 		$jwtBody->requested   = ['name','email'];
