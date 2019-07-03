@@ -88,12 +88,33 @@ class Uport_Admin {
 	*
 	* @since 1.0.0
 	*/
+
+	public function options_update() {
+		error_log('options update ran');
+
+	    register_setting($this->plugin_name, $this->plugin_name, array($this, 'validate'));
+	}
+
 	 
 	public function add_action_links( $links ) {
 		$settings_link = array(
 			'<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_name ) . '">' . __('Settings', $this->plugin_name) . '</a>',
 		);
 		return array_merge( $settings_link, $links );
+	}
+
+
+	// This isn't finished yet. Need to add text field validation for the key and mnid
+	public function validate($input) {
+
+		error_log('validate ran');
+		     
+	    $valid = array();
+	 
+	    if (isset($input['uport-mnid']) && !empty($input['uport-mnid'])) $valid['uport-mnid'] = $input['uport-mnid'];
+	    if (isset($input['uport-key']) && !empty($input['uport-key'])) $valid['uport-key'] = $input['uport-key'];
+
+	    return $valid;
 	}
 	 
 	/**
