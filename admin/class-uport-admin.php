@@ -80,7 +80,7 @@ class Uport_Admin {
 	*/
 	 
 	public function add_plugin_admin_menu() {
-		add_options_page( 'Uport Options Settings', 'Uport', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page'));
+		add_options_page( 'Uport Options Settings', 'Uport Login', 'manage_options', $this->plugin_name, array($this, 'display_plugin_setup_page'));
 	}
 	 
 	/**
@@ -108,7 +108,7 @@ class Uport_Admin {
 	public function validate($input) {
 
 		error_log('validate ran');
-		     
+
 	    $valid = array();
 	 
 	    if (isset($input['uport-mnid']) && !empty($input['uport-mnid'])) $valid['uport-mnid'] = $input['uport-mnid'];

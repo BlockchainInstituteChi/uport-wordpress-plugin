@@ -236,7 +236,7 @@ class Uport {
 
 				wp_send_json( $successPayload );	
 
-				die ();
+				wp_die();
 
 			} else {
 
@@ -247,7 +247,7 @@ class Uport {
 				];
 				error_log('failed');
 				wp_send_json( $failurePayload );		
-				die();
+				wp_die();
 			}
 
 		}
@@ -328,7 +328,7 @@ class Uport {
 	 *
 	 */
 
-	public static function generate_disclosure_request () {
+	public function generate_disclosure_request () {
 
 		function generate_string() {
 			$strength = 16;
@@ -391,7 +391,7 @@ class Uport {
 		error_log($jwt);
 		echo json_encode($payload);
 
-		die();
+		wp_die();
 
 	}
 

@@ -23,15 +23,6 @@ const uport = new uportConnect.Connect(appName, {
 });
 
 function callVerifyEndpoint ( access_token ) {
-	// Request credentials
-	// uport.requestCredentials({
-	//   requested: ['name'],
-	// }).then((credentials) => {
-	//   console.log(credentials);
-
-	//   console.log('finished')
-
-	// })
 
   var data = {
     'action': 'verify_disclosure_response',
@@ -74,6 +65,7 @@ function setCredentials ( ) {
   console.log('calling', data)
   // We can also pass the url value separately from ajaxurl for front end AJAX implementations
   jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
+    
     response = JSON.parse(response);
     console.log('Got this from the server: ', response);
     displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
@@ -84,7 +76,9 @@ function setCredentials ( ) {
         callVerifyEndpoint(result.message.access_token);
       }
     }, null);
-  });
+  }).fail(function() {
+    alert( "Failed to generate Uport request. Are you sure you're not already logged in?" );
+  })
 
 }
 
