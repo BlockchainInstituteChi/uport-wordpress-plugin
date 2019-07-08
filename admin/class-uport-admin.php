@@ -113,10 +113,11 @@ class Uport_Admin {
 	 
 	    if (isset($input['uport-mnid']) && !empty($input['uport-mnid'])) $valid['uport-mnid'] = $input['uport-mnid'];
 	    if (isset($input['uport-key']) && !empty($input['uport-key'])) $valid['uport-key'] = $input['uport-key'];
+	    if (isset($input['uport-login-url']) && !empty($input['uport-login-url'])) $valid['uport-login-url'] = $input['uport-login-url'];	    
 
 	    return $valid;
 	}
-	 
+
 	/**
 	* Render the settings page for this plugin.
 	*
