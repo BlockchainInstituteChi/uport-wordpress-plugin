@@ -324,10 +324,10 @@ class Uport {
 				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
 			}
 
-			if( isset( $uport_options['uport-login-url'] ) ) {
-				$redirect_url = $uport_options['uport-login-url'];
-			} else {
+			if( ( !isset( $uport_options['uport-login-url'] ) ) || ( "" === $uport_options['uport-login-url'] ) ) {
 				$redirect_url = get_home_url();
+			} else {
+				$redirect_url = $uport_options['uport-login-url'];
 			}
 
 			$successPayload = [
