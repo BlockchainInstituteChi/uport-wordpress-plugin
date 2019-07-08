@@ -49,16 +49,7 @@ function callVerifyEndpoint ( access_token ) {
 }
 
 function setCredentials ( ) {
-  // Request credentials
-  // uport.requestCredentials({
-  //   requested: ['name'],
-  // }).then((credentials) => {
-  //   console.log(credentials);
-
-  //   console.log('finished')
-
-  // })
-
+  
   var data = {
     'action': 'generate_disclosure_request'     // We pass php values differently!
   };

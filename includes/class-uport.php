@@ -2,7 +2,7 @@
 
 require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
-use Blockchaininstitute\jwtTools as jwtTools;
+use Blockchaininstitute\jwtTools as jwt_tools;
 
 /**
  * The file that defines the core uPort plugin class
@@ -132,263 +132,58 @@ class Uport {
 
 
 	/**
-	 * verify_disclosure_response 
-	 *
-	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
-	 *
-	 */
-
-	public static function verify_disclosure_response () {
-
- 		function getUserBy( $user ) {
-
-			// if the user is logged in, pass curent user
-			if( is_user_logged_in() )
-				return wp_get_current_user();
-
-			$user_data = get_user_by('email', $user['user_email']);
-
-			if( ! $user_data ) {
-				$users     = get_users(
-					array(
-						'meta_key'    => '_uport_mnid',
-						'meta_value'  => $user['uport_mnid'],
-						'number'      => 1,
-						'count_total' => false
-					)
-				);
-				if( is_array( $users ) ) $user_data = reset( $users );
-			}
-			return $user_data;
-		}
-
-		function login_or_register_user ( $name, $email, $mnid ) {
-
-			$user = [
-				'user_email' => $email,
-				'uport_mnid' => $mnid,
-				'uport_name' => $name,
-			];
-
-			$user_obj = getUserBy( $user );
-
-			$meta_updated = false;
-
-			if ( $user_obj ){
-				error_log('user found');
-				error_log(json_encode($user_obj));
-				$user_id = $user_obj->ID;
-				$status = array( 'success' => $user_id, 'method' => 'login');
-				// check if user email exist or update accordingly
-				if( empty( $user_obj->user_email ) )
-					wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
-					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-
-			} else {
-				error_log('user not found');
-				if( ! get_option('users_can_register') || apply_filters( 'fbl/registration_disabled', false ) ) {
-					// if( ! apply_filters( 'fbl/bypass_registration_disabled', false ) )
-					// $this->ajax_response( array( 'error' => __( 'User registration is disabled', 'fbl' ) ) );
-				}
-				// generate a new username
-				$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
-				error_log('user is');
-				error_log(json_encode($user));
-
-				// NOTE: Defaults to subscriber role for new users...
-				$newUser = [
-					'user_login'   => $user['user_login'], 
-					'user_pass'    => bin2hex(openssl_random_pseudo_bytes(10)), 
-					'nickname'     => $user['user_login'], 
-					'display_name' => $user['user_login'], 
-					'email'        => $user['user_email'],
-					'role'         => 'subscriber',
-				];
-
-				error_log('newuser is');
-				error_log(json_encode($newUser));
-
-				$user_id = wp_insert_user($newUser);
-
-				if( !is_wp_error( $user_id ) ) {
-					// $this->notify_new_registration( $user_id );
-					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-					$meta_updated = true;
-					$status = array( 'success' => $user_id, 'method' => 'registration' );
-
-					error_log('userId is');
-					error_log(json_encode($user_id));
-
-					error_log('status is');
-					error_log(json_encode($status));
-				}
-			}
-			if( is_numeric( $user_id ) ) {
-				wp_set_auth_cookie( $user_id, true );
-				if( !$meta_updated ) {
-					update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-				}
-				error_log('login successful, redirecting to ' . get_home_url());
-				$successPayload = [
-					'success'  => true,
-					'redirect' => get_home_url(),
-				];
-
-				wp_send_json( $successPayload );	
-
-				wp_die();
-
-			} else {
-
-				$failurePayload = [
-					'success' => false,
-					'user'    => $user,
-					'newUser' => $newUser,
-				];
-				error_log('failed');
-				wp_send_json( $failurePayload );		
-				wp_die();
-			}
-
-		}
-
- 		function login_with_uport ($payload) {
- 			error_log('Received valid payload: ');
-			error_log(print_r($payload, TRUE));
-
-			if( empty( $payload['email'] ) ) { 
-
-				error_log( 'email: ' );
-				error_log( $payload['email'] );
-				echo "{'error':'no email provided','errcode':'2'}";
-				
-
-			} else {
-				// $user = login_or_register_user( $payload['name'], $payload['email'], $payload['mnid']);
-				// error_log(json_encode($user));
-				return login_or_register_user( $payload['name'], $payload['email'], $payload['mnid'] );
-
-			}
-			error_log('made it to the end of the login function. Email was: '. $payload['email'] );
-		}
-
-		$jwt = $_POST['disclosureResponse'];
-
-		$jwtTools = new jwtTools(null);
-
-		error_log('jwt received ' . $jwt);
-
-		$plainText = json_decode(base64_decode( urldecode( ( $jwtTools->deconstruct_and_decode( $jwt ) )['body'] ) ));
-
-		error_log(print_r($plainText, TRUE));
-
-		$isVerified = $jwtTools->verify_JWT($jwt);
-
-		// Check the response to see if it's valid
-		if ( 1 == $jwtTools->verify_JWT($jwt) ) {
-			// Jwt signature is valid
-			$payload = [
-				'name'  => $plainText->own->name,
-				'email' => $plainText->own->email,
-				'mnid'  => $plainText->nad,
-			];
-
-			// $this->login_with_uport($payload);
-			login_with_uport($payload);
-
-		} else {
-
-			echo "{'success':false;'error':'imvalid jwt';}"; 
-
-		}
-
-
-
-	}
-
-	// *
-	//  * login_with_uport 
-	//  *
-	//  * @param $payload Payload receives a valid jwt payload with a name and email index which should be able to be accessed as $payload['name'] and $payload['email']
-	//  *
-	 
-
-	// private static function login_with_uport ($payload) {
-	// 	error_log(print_r($payload, TRUE));
-
-
-
-
-	// }
-
-	/**
 	 * generate_disclosure_request 
 	 *
-	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 * POST endpoint that returns a signed JWT using the credentials from the uport-wordpress admin setting.
 	 *
+	 * @since    1.0.0
+	 * @access   private
 	 */
 
-	public function generate_disclosure_request () {
+	public static function generate_disclosure_request () {
 
-		function generate_string() {
-			$strength = 16;
-			$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		    $input_length = strlen($permitted_chars);
-		    $random_string = '';
-		    for($i = 0; $i < $strength; $i++) {
-		        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
-		        $random_string .= $random_character;
-		    }
-		    return $random_string;
+		$uport           = new Uport ();
+		$jwt_tools       = new jwt_tools(null);
+		$uport_options   = get_option('uport');
+		$time            = time();
+		$jwt_header      = (object)[];
+		$jwt_header->typ = 'JWT'; 
+		$jwt_header->alg = 'ES256K'; 
+
+		$jwt_body = (object)[];
+
+		if (isset($uport_options['uport-key']) && !empty($uport_options['uport-key'])) {
+			
+			$signing_key  = $uport_options['uport-key'];
+
+		} else {
+			
+			$signing_key = "";
+
 		}
 
-		$jwtTools = new jwtTools(null);
-		$uport_options = get_option('uport');
+		$random_address_string = $uport->generate_random_string();
 
-		error_log('options returned');
-		error_log(json_encode($uport_options));
+		$topic_url = 'https://chasqui.uport.me/api/v1/topic/' . $random_address_string;
 
-		// Prepare the JWT Header
-		// 1. Initialize JWT Values
-		$jwtHeader = (object)[];
-		$jwtHeader->typ = 'JWT'; // ""
-		$jwtHeader->alg = 'ES256K'; // ""
+		$jwt_body->iss  = "";
 
-		// 2. Create JWT Object
-		$jwtHeaderJson = json_encode($jwtHeader, JSON_UNESCAPED_SLASHES);
+		if (isset($uport_options['uport-mnid']) && !empty($uport_options['uport-key'])) $jwt_body->iss         =  get_option('uport')['uport-mnid'];
 
+		$jwt_body->iat         = $time;
+		$jwt_body->requested   = ['name','email'];
+		$jwt_body->callback    = $topic_url;
+		$jwt_body->net         = "0x4";
+		$jwt_body->exp         = $time + 600;
+		$jwt_body->type        = "shareReq";
 
-		// Prepare the JWT Body
-		// 1. Initialize JWT Values
-		$jwtBody = (object)[];
+		$jwt         = $jwt_tools->create_JWT( json_encode($jwt_header, JSON_UNESCAPED_SLASHES), json_encode($jwt_body, JSON_UNESCAPED_SLASHES), $signing_key );
 
-		$signingKey = "";
-		 // "Client ID"
-		if (isset($uport_options['uport-key']) && !empty($uport_options['uport-key'])) $signingKey  = $uport_options['uport-key'];
+		$payload     = [
+			"jwt"   => $jwt,
+			"topic" => $topic_url,
+		];
 
-		$topicUrl = 'https://chasqui.uport.me/api/v1/topic/' . generate_string();
-
-		$time = time();
-		$jwtBody->iss         = "";
-		if (isset($uport_options['uport-mnid']) && !empty($uport_options['uport-key'])) $jwtBody->iss         =  get_option('uport')['uport-mnid'];
-		$jwtBody->iat 	      = $time;
-
-		$jwtBody->requested   = ['name','email'];
-		$jwtBody->callback    = $topicUrl;
-		$jwtBody->net      	  = "0x4";
-		$jwtBody->exp 	      = $time + 600;
-		$jwtBody->type 		  = "shareReq";
-
-		// 2. Create JWT Object
-		$jwtBodyJson = json_encode($jwtBody, JSON_UNESCAPED_SLASHES);
-
-		$jwt = $jwtTools->create_JWT($jwtHeaderJson, $jwtBodyJson, $signingKey);
-
-		$payload = [];
-		$payload["jwt"] = $jwt;
-		$payload["topic"] = $topicUrl;	
-		error_log('jwt');
-		error_log($jwt);
 		echo json_encode($payload);
 
 		wp_die();
@@ -396,10 +191,212 @@ class Uport {
 	}
 
 	/**
-	 * Define the locale for this plugin for internationalization.
+	 * verify_disclosure_response 
 	 *
-	 * Uses the Uport_i18n class in order to set the domain and to register the hook
-	 * with WordPress.
+	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
+	 *
+	 */
+	public static function verify_disclosure_response () {
+
+		$jwt = $_POST['disclosureResponse'];
+
+		$jwt_tools 	= new jwt_tools(null);
+		$uport 		= new Uport();
+
+		$plain_text = json_decode(base64_decode( urldecode( ( $jwt_tools->deconstruct_and_decode( $jwt ) )['body'] ) ));
+
+		if ( 1 == $jwt_tools->verify_JWT($jwt) ) {
+
+			$payload = [
+				'name'  => $plain_text->own->name,
+				'email' => $plain_text->own->email,
+				'mnid'  => $plain_text->nad,
+			];
+
+			$uport->login_with_uport($payload);
+
+		} else {
+
+			echo "{'success':false;'error':'imvalid jwt';}"; 
+
+		}
+
+	}
+
+	/** 
+	 * get_user_by 
+	 *
+	 * @param stdclass object containing the keys mnid, email, and name
+	 *
+	 * @return returns a valid user object if it exists
+	 *
+	 * @since    1.0.0
+	 * @access   private	 
+	 */
+	private function get_user_by( $user ) {
+
+		if( is_user_logged_in() )
+			return wp_get_current_user();
+
+		$user_data = get_user_by('email', $user['user_email']);
+
+		if( ! $user_data ) {
+			$users     = get_users(
+				array(
+					'meta_key'    => '_uport_mnid',
+					'meta_value'  => $user['uport_mnid'],
+					'number'      => 1,
+					'count_total' => false
+				)
+			);
+			if( is_array( $users ) ) $user_data = reset( $users );
+		}
+		return $user_data;
+	}
+
+
+	/**
+	 * login_or_register_user 
+	 *
+	 * handles user signin with uport credentials
+	 *
+	 * @param string $name should contain a string formatted nice name for the user
+	 *
+	 * @param string $email should contain an email to look up the account by
+	 *	 
+	 * @param string $mnid should contain an account mnid which will be used to generate a new username if necessary
+	 *	 	 
+	 * @return string Returns the user object or creates it
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function login_or_register_user ( $name, $email, $mnid ) {
+
+		$user = [
+			'user_email' => $email,
+			'uport_mnid' => $mnid,
+			'uport_name' => $name,
+		];
+
+		$user_obj = $this->get_user_by( $user );
+
+		$meta_updated = false;
+
+		if ( $user_obj ){
+
+			$user_id = $user_obj->ID;
+			$status = array( 'success' => $user_id, 'method' => 'login');
+
+			if( empty( $user_obj->user_email ) )
+				wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
+				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+
+		} else {
+
+			$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
+			$newUser            = [
+				'user_login'   => $user['user_login'],
+				'user_pass'    => bin2hex(openssl_random_pseudo_bytes(10)),
+				'nickname'     => $user['user_login'],
+				'display_name' => $user['user_login'],
+				'email'        => $user['user_email'],
+				'role'         => 'subscriber',
+			];
+
+			$user_id = wp_insert_user($newUser);
+
+			if( !is_wp_error( $user_id ) ) {
+
+				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+				$meta_updated = true;
+				$status       = array( 'success' => $user_id, 'method' => 'registration' );
+
+			}
+
+		}
+
+		if( is_numeric( $user_id ) ) {
+
+			wp_set_auth_cookie( $user_id, true );
+
+			if( !$meta_updated ) {
+				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
+			}
+
+			$successPayload = [
+				'success'  => true,
+				'redirect' => get_home_url(),
+			];
+
+			wp_send_json( $successPayload );
+
+			wp_die();
+
+		} else {
+
+			$failure_payload = [
+				'success' => false,
+				'user'    => $user,
+				'newUser' => $newUser,
+			];
+			wp_send_json( $failure_payload );
+			wp_die();
+		}
+
+	}
+
+
+	/**
+	 * login_with_uport 
+	 *
+	 * verifies uport credentials and handles login
+	 *	 
+	 * @param array $payload should contain a uport login payload generated from verify_disclosure_response
+	 *	 	 
+	 * @return string Returns the user object or creates it
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function login_with_uport ($payload) {
+
+		if( empty( $payload['email'] ) ) { 
+
+			echo "{'error':'no email provided','errcode':'2'}";
+			
+		} else {
+
+			return $this->login_or_register_user( $payload['name'], $payload['email'], $payload['mnid'] );
+
+		}
+
+	}
+
+	/**
+	 * generate_random_string
+	 *
+	 * generates a random string for chasqui topic generation
+	 *	 	 
+	 * @return string Returns the random string
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function generate_random_string() {
+		$strength = 16;
+		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	    $input_length = strlen($permitted_chars);
+	    $random_string = '';
+	    for($i = 0; $i < $strength; $i++) {
+	        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+	        $random_string    .= $random_character;
+	    }
+	    return $random_string;
+	}
+
+	/**
+	 * Define the locale for this plugin for internationalization.
 	 *
 	 * @since    1.0.0
 	 * @access   private
@@ -415,6 +412,10 @@ class Uport {
 	/**
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
+	 *
+	 * @param string $private_key_string Passes a string which will be used as the private key to sign the payload
+	 *
+	 * @return string Returns the base 64 encoded and trimmed JWT with a signature generated using the given private key string
 	 *
 	 * @since    1.0.0
 	 * @access   private
@@ -442,9 +443,6 @@ class Uport {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-
-
-
 	private function define_public_hooks() {
 
 		$plugin_public = new Uport_Public( $this->get_plugin_name(), $this->get_version() );
