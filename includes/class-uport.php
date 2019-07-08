@@ -285,7 +285,7 @@ class Uport {
 	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
 	 *
 	 */
-	public function verify_disclosure_response () {
+	public static function verify_disclosure_response () {
 
 		$jwt = $_POST['disclosureResponse'];
 
@@ -343,7 +343,7 @@ class Uport {
 	 *
 	 */
 
-	public function generate_disclosure_request () {
+	public static function generate_disclosure_request () {
 
 		function generate_string() {
 			$strength = 16;
