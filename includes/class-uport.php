@@ -143,16 +143,16 @@ class Uport {
 	public static function generate_disclosure_request () {
 
 		$uport           = new Uport ();
-		$jwt_tools       = new jwt_tools(null);
-		$uport_options   = get_option('uport');
+		$jwt_tools       = new jwt_tools( null );
+		$uport_options   = get_option( 'uport' );
 		$time            = time();
-		$jwt_header      = (object)[];
+		$jwt_header      = ( object )[];
 		$jwt_header->typ = 'JWT'; 
 		$jwt_header->alg = 'ES256K'; 
 
-		$jwt_body = (object)[];
+		$jwt_body = ( object )[];
 
-		if (isset($uport_options['uport-key']) && !empty($uport_options['uport-key'])) {
+		if ( isset( $uport_options['uport-key'] ) && !empty( $uport_options['uport-key'] )) {
 			
 			$signing_key  = $uport_options['uport-key'];
 
@@ -168,7 +168,7 @@ class Uport {
 
 		$jwt_body->iss  = "";
 
-		if (isset($uport_options['uport-mnid']) && !empty($uport_options['uport-key'])) $jwt_body->iss         =  get_option('uport')['uport-mnid'];
+		if ( isset( $uport_options['uport-mnid'] ) && !empty( $uport_options['uport-key'] ) ) $jwt_body->iss         =  get_option( 'uport' )['uport-mnid'];
 
 		$jwt_body->iat         = $time;
 		$jwt_body->requested   = ['name','email'];
@@ -177,14 +177,14 @@ class Uport {
 		$jwt_body->exp         = $time + 600;
 		$jwt_body->type        = "shareReq";
 
-		$jwt         = $jwt_tools->create_JWT( json_encode($jwt_header, JSON_UNESCAPED_SLASHES), json_encode($jwt_body, JSON_UNESCAPED_SLASHES), $signing_key );
+		$jwt         = $jwt_tools->create_JWT( json_encode( $jwt_header, JSON_UNESCAPED_SLASHES ), json_encode( $jwt_body, JSON_UNESCAPED_SLASHES ), $signing_key );
 
 		$payload     = [
 			"jwt"   => $jwt,
 			"topic" => $topic_url,
 		];
 
-		echo json_encode($payload);
+		echo json_encode( $payload );
 
 		wp_die();
 
@@ -200,12 +200,12 @@ class Uport {
 
 		$jwt = $_POST['disclosureResponse'];
 
-		$jwt_tools 	= new jwt_tools(null);
+		$jwt_tools 	= new jwt_tools( null );
 		$uport 		= new Uport();
 
-		$plain_text = json_decode(base64_decode( urldecode( ( $jwt_tools->deconstruct_and_decode( $jwt ) )['body'] ) ));
+		$plain_text = json_decode( base64_decode( urldecode( ( $jwt_tools->deconstruct_and_decode( $jwt ) )['body'] ) ) );
 
-		if ( 1 == $jwt_tools->verify_JWT($jwt) ) {
+		if ( 1 == $jwt_tools->verify_JWT( $jwt ) ) {
 
 			$payload = [
 				'name'  => $plain_text->own->name,
@@ -213,7 +213,7 @@ class Uport {
 				'mnid'  => $plain_text->nad,
 			];
 
-			$uport->login_with_uport($payload);
+			$uport->login_with_uport( $payload );
 
 		} else {
 
@@ -272,39 +272,37 @@ class Uport {
 	 * @access   private
 	 */
 	private function login_or_register_user ( $name, $email, $mnid ) {
-
-		$user = [
+		
+		$user         = [
 			'user_email' => $email,
 			'uport_mnid' => $mnid,
 			'uport_name' => $name,
 		];
-
-		$user_obj = $this->get_user_by( $user );
-
+		$user_obj     = $this->get_user_by( $user );
 		$meta_updated = false;
 
 		if ( $user_obj ){
 
 			$user_id = $user_obj->ID;
-			$status = array( 'success' => $user_id, 'method' => 'login');
-
+			$status  = array( 'success' => $user_id, 'method' => 'login' );
+			
 			if( empty( $user_obj->user_email ) )
 				wp_update_user( array( 'ID' => $user_id, 'user_email' => $user['user_email'] ) );
 				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
-
+		
 		} else {
 
 			$user['user_login'] = $user['uport_name'] . "_" . $user['uport_mnid'];
 			$newUser            = [
 				'user_login'   => $user['user_login'],
-				'user_pass'    => bin2hex(openssl_random_pseudo_bytes(10)),
+				'user_pass'    => bin2hex( openssl_random_pseudo_bytes( 10 ) ),
 				'nickname'     => $user['user_login'],
 				'display_name' => $user['user_login'],
 				'email'        => $user['user_email'],
 				'role'         => 'subscriber',
 			];
 
-			$user_id = wp_insert_user($newUser);
+			$user_id = wp_insert_user( $newUser );
 
 			if( !is_wp_error( $user_id ) ) {
 
@@ -386,10 +384,10 @@ class Uport {
 	private function generate_random_string() {
 		$strength = 16;
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	    $input_length = strlen($permitted_chars);
+	    $input_length = strlen( $permitted_chars );
 	    $random_string = '';
 	    for($i = 0; $i < $strength; $i++) {
-	        $random_character = $permitted_chars[mt_rand(0, $input_length - 1)];
+	        $random_character = $permitted_chars[mt_rand( 0, $input_length - 1 )];
 	        $random_string    .= $random_character;
 	    }
 	    return $random_string;
