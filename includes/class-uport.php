@@ -278,8 +278,10 @@ class Uport {
 			'uport_mnid' => $mnid,
 			'uport_name' => $name,
 		];
-		$user_obj     = $this->get_user_by( $user );
-		$meta_updated = false;
+
+		$uport_options  = get_option( 'uport' );
+		$user_obj       = $this->get_user_by( $user );
+		$meta_updated   = false;
 
 		if ( $user_obj ){
 
@@ -322,9 +324,15 @@ class Uport {
 				update_user_meta( $user_id, '_uport_mnid', $user['uport_mnid'] );
 			}
 
+			if( isset( $uport_options['uport-login-url'] ) ) {
+				$redirect_url = $uport_options['uport-login-url'];
+			} else {
+				$redirect_url = get_home_url();
+			}
+
 			$successPayload = [
 				'success'  => true,
-				'redirect' => get_home_url(),
+				'redirect' => $redirect_url,
 			];
 
 			wp_send_json( $successPayload );
