@@ -134,7 +134,7 @@ class Uport {
 	/**
 	 * generate_disclosure_request 
 	 *
-	 * POST endpoint that returns a signed JWT using the credentials from the uport-wordpress admin setting.
+	 * POST endpoint that returns a signed JWT using the credentials from the uport-wordpress admin setting. Returns an invalid JWT if the settings for the plugin are not configured.
 	 *
 	 * @since    1.0.0
 	 * @access   private
