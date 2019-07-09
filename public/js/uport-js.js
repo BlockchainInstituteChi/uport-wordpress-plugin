@@ -11,7 +11,7 @@ var preCounter = 0;
 
 const uriHandler = (uri) => {
   displayQRCodeDiv (uri)
-  console.log(uri)
+  // console.log(uri)
 
 }
 
@@ -30,13 +30,13 @@ function callVerifyEndpoint ( access_token ) {
   };
   
   if ( 1 != preCounter ) {
-    console.log('calling', data)
+    // console.log('calling', data)
     
     // We can also pass the url value separately from ajaxurl for front end AJAX implementations
     jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
       preCounter = 1;
       // response = JSON.parse(response);
-      console.log('Called server and got response : ', response);
+      // console.log('Called server and got response : ', response);
       if ( true === response.success ) {
         window.location = response.redirect;
       } else {
@@ -53,12 +53,12 @@ function setCredentials ( ) {
   var data = {
     'action': 'generate_disclosure_request'     // We pass php values differently!
   };
-  console.log('calling', data)
+  // console.log('calling', data)
   // We can also pass the url value separately from ajaxurl for front end AJAX implementations
   jQuery.post('http://localhost/wp-admin/admin-ajax.php', data, function(response) {
     
     response = JSON.parse(response);
-    console.log('Got this from the server: ', response);
+    // console.log('Got this from the server: ', response);
     displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
     pollForResult('access_token', response.topic, function(result) {
       // console.log('pollForResult returned ', result)
@@ -77,7 +77,7 @@ function setCredentials ( ) {
 var pollingInterval = 2000;
 
 function pollForResult(topicName, url, cb, cancelled) {
-  console.log( 'pollForResult called with ', topicName, url )
+  // console.log( 'pollForResult called with ', topicName, url )
   var interval = setInterval(function () {
     jQuery.get(url, {
       json: true,
@@ -113,7 +113,7 @@ function pollForResult(topicName, url, cb, cancelled) {
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
-    console.log('this function ran, yes')
+    // console.log('this function ran, yes')
     var uportButton 			= document.createElement('input');
 		uportButton.className 	= "button button-primary button-large uportButton";
 		uportButton.value		= "uPort Login";
@@ -129,7 +129,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 function startUportLoginSequence() {
 	// console.log('this function also ran, yes')
-	console.log('button clicked');
+	// console.log('button clicked');
 	setCredentials()
 }
 
@@ -184,7 +184,7 @@ function displayQRCodeDiv (address) {
 }
 
 function cancelUportLogin () {
-	console.log('cancelUportLogin clicked')
+	// console.log('cancelUportLogin clicked')
 	document.getElementById('canvasBackdrop').remove()
 
 }
