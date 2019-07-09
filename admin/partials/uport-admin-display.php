@@ -51,7 +51,7 @@ function get_uport_option ( $name ) {
             </label>
             <br>
             <legend class="screen-reader-text"><span>Login Redirect</span></legend>
-            <label for="<?php echo $this->plugin_name; ?>-key">
+            <label for="<?php echo $this->plugin_name; ?>-login-url">
                 <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-login-url]" value="<?php get_uport_option('login-url'); ?>"/>
                 <span><?php esc_attr_e('A url to redirect to on successful login. (leave empty to set homepage)', $this->plugin_name); ?></span>
             </label>            
