@@ -18,12 +18,38 @@ function get_uport_option ( $name ) {
 	$options = get_option('uport');
 	if(isset($options['uport-' . $name])){
 		error_log('found option ' . $options['uport-' . $name]);
-		echo $options['uport-' . $name];
+		return $options['uport-' . $name];
 	} else {
 		error_log('not found');
-		echo "";
+		return "";
 	}
 }
+
+$network_option = getSelectedNetwork();
+
+function getSelectedNetwork () {
+
+    $is_selected = [
+        0 => "",
+        1 => "",
+        2 => "",
+        3 => "",    
+    ];
+
+    $current_network = get_uport_option('network');
+
+    if ( "" === $current_network ) {
+
+    } else {
+
+        $is_selected[((explode( 'x', $current_network ))[1] - 1)]  = "selected";
+   
+    }
+
+    return $is_selected;
+
+}
+
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
@@ -40,21 +66,32 @@ function get_uport_option ( $name ) {
             <h2>Organization Credentials</h2>
             <legend class="screen-reader-text"><span>MNID</span></legend>
             <label for="<?php echo $this->plugin_name; ?>-mnid">
-                <input type="text" id="<?php echo $this->plugin_name; ?>-mnid" name="<?php echo $this->plugin_name; ?>[uport-mnid]" value="<?php get_uport_option('mnid'); ?>" />
+                <input type="text" id="<?php echo $this->plugin_name; ?>-mnid" name="<?php echo $this->plugin_name; ?>[uport-mnid]" value="<?php echo get_uport_option('mnid'); ?>" />
                 <span><?php esc_attr_e('Your Uport MNID', $this->plugin_name); ?></span>
             </label>
             <br>
             <legend class="screen-reader-text"><span>Authentication Key</span></legend>
             <label for="<?php echo $this->plugin_name; ?>-key">
-                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-key]" value="<?php get_uport_option('key'); ?>"/>
+                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-key]" value="<?php echo get_uport_option('key'); ?>"/>
                 <span><?php esc_attr_e('Your Uport Private Key (in Hex Format)', $this->plugin_name); ?></span>
             </label>
             <br>
             <legend class="screen-reader-text"><span>Login Redirect</span></legend>
             <label for="<?php echo $this->plugin_name; ?>-login-url">
-                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-login-url]" value="<?php get_uport_option('login-url'); ?>"/>
+                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-login-url]" value="<?php echo get_uport_option('login-url'); ?>"/>
                 <span><?php esc_attr_e('A url to redirect to on successful login. (leave empty to set homepage)', $this->plugin_name); ?></span>
-            </label>            
+            </label>          
+            <br>
+            <legend class="screen-reader-text"><span>Login Redirect</span></legend>
+            <label for="<?php echo $this->plugin_name; ?>-login-url">
+                <select id="<?php echo $this->plugin_name; ?>-network" name="<?php echo $this->plugin_name; ?>[uport-network]">
+                    <option <?php echo $network_option[0]; ?> value="0x1">0x1 - Mainnet</option>
+                    <option <?php echo $network_option[1]; ?> value="0x2">0x2 - </option>
+                    <option <?php echo $network_option[2]; ?> value="0x3">0x3 - </option>
+                    <option <?php echo $network_option[3]; ?> value="0x4">0x4 - Ropsten</option>
+                </select>
+                <span><?php esc_attr_e('Choose which Ethereum network to use.', $this->plugin_name); ?></span>
+            </label>         
         </fieldset>
         <br><hr><br>
         <div>
