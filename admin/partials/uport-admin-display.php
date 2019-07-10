@@ -85,10 +85,10 @@ function getSelectedNetwork () {
             <legend class="screen-reader-text"><span>Login Redirect</span></legend>
             <label for="<?php echo $this->plugin_name; ?>-login-url">
                 <select id="<?php echo $this->plugin_name; ?>-network" name="<?php echo $this->plugin_name; ?>[uport-network]">
-                    <option <?php echo $network_option[0]; ?> value="0x1">0x1</option>
-                    <option <?php echo $network_option[1]; ?> value="0x2">0x2</option>
-                    <option <?php echo $network_option[2]; ?> value="0x3">0x3</option>
-                    <option <?php echo $network_option[3]; ?> value="0x4">0x4</option>
+                    <option <?php echo $network_option[0]; ?> value="0x1">0x1 - Mainnet</option>
+                    <option <?php echo $network_option[1]; ?> value="0x2">0x2 - </option>
+                    <option <?php echo $network_option[2]; ?> value="0x3">0x3 - </option>
+                    <option <?php echo $network_option[3]; ?> value="0x4">0x4 - Ropsten</option>
                 </select>
                 <span><?php esc_attr_e('Choose which Ethereum network to use.', $this->plugin_name); ?></span>
             </label>         
