@@ -299,7 +299,7 @@ class Uport {
 				'user_login'   => $user['user_login'],
 				'user_pass'    => bin2hex( openssl_random_pseudo_bytes( 10 ) ),
 				'nickname'     => $user['user_login'],
-				'display_name' => $user['user_login'],
+				'display_name' => $user['uport_name'],
 				'email'        => $user['user_email'],
 				'role'         => 'subscriber',
 			];
