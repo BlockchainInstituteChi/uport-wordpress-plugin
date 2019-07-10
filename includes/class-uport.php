@@ -168,12 +168,19 @@ class Uport {
 
 		$jwt_body->iss  = "";
 
-		if ( isset( $uport_options['uport-mnid'] ) && !empty( $uport_options['uport-key'] ) ) $jwt_body->iss         =  get_option( 'uport' )['uport-mnid'];
+		if ( isset( $uport_options['uport-mnid'] ) && !empty( $uport_options['uport-key'] ) ) $jwt_body->iss         =  $uport_options['uport-mnid'];
+
+		if ( isset( $uport_options['uport-network'] ) && !empty( $uport_options['uport-key'] ) ) {
+			$network         = $uport_options['uport-network'];
+		} else {
+			// if no network is set, use mainnet
+			$network         = "0x1";
+		}
 
 		$jwt_body->iat         = $time;
 		$jwt_body->requested   = ['name','email'];
 		$jwt_body->callback    = $topic_url;
-		$jwt_body->net         = "0x4";
+		$jwt_body->net         = $network;
 		$jwt_body->exp         = $time + 600;
 		$jwt_body->type        = "shareReq";
 
