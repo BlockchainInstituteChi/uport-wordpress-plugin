@@ -18,7 +18,7 @@ function callVerifyEndpoint ( access_token ) {
       if ( true === response.success ) {
         window.location = response.redirect;
       } else {
-        alert ( 'Invalid jwt received. Please contact your administrator.')
+        displayError ( 'Invalid jwt received. Please contact your administrator.')
       }
 
     });
@@ -37,7 +37,7 @@ function setCredentials ( ) {
     
     response = JSON.parse(response);
     // console.log('Got this from the server: ', response);
-    displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt);
+    displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt, null)
     pollForResult('access_token', response.topic, function(result) {
       // console.log('pollForResult returned ', result)
       if ( typeof( result.message.access_token ) != 'undefined'  ) {
@@ -45,8 +45,9 @@ function setCredentials ( ) {
         callVerifyEndpoint(result.message.access_token);
       }
     }, null);
+
   }).fail(function() {
-    alert( "Failed to generate Uport request. Are you sure you're not already logged in?" );
+    displayError( "Failed to generate Uport request. Are you sure you're not already logged in?" );
   })
 
 }
@@ -86,7 +87,45 @@ function startUportLoginSequence() {
 	setCredentials()
 }
 
-function displayQRCodeDiv (address) {
+function displayError ( error ) {
+
+  var udiv = document.getElementById('uport-login-canvas')
+
+  if ( null === udiv ) {
+
+    displayQRCodeDiv( 'error:' + error , error );
+
+  } else {
+
+    printError( error );
+
+  }
+
+}
+
+function printError( error ) {
+
+  var container    = document.getElementById('loginWindow')
+  var errorMessage = document.getElementById('errorMessage')
+
+  if ( null === errorMessage ) {
+ 
+    errorMessage           = document.createElement('span')
+    errorMessage.innerHTML = "Error: " + error 
+    errorMessage.class     = "errorMessage"
+    errorMessage.id        = "errorMessage"
+    container.appendChild(errorMessage)
+   
+  } else {
+
+    errorMessage.innerHTML = "Error: " + error 
+
+  }
+
+}
+
+
+function displayQRCodeDiv (address, error) {
 
 	var overlayDiv 				= document.createElement('div')
 		overlayDiv.className 	= 'uport-backdrop'
@@ -94,6 +133,7 @@ function displayQRCodeDiv (address) {
 
 	var foreGroundDiv 			= document.createElement('div')
 		foreGroundDiv.className = 'loginWindow'
+    foreGroundDiv.id        = 'loginWindow'
 
 	var title 					= document.createElement('div')
 		title.className 		= "title"
@@ -111,14 +151,24 @@ function displayQRCodeDiv (address) {
 	var canvas 					= document.createElement('canvas')
 		canvas.id 				= "uport-login-canvas"
 
-
-
 	title.appendChild(titleImage)
 	title.appendChild(titleHint)
 
 	// foreGroundDiv.appendChild(closeButton)
 	foreGroundDiv.appendChild(title)
 	foreGroundDiv.appendChild(canvas)
+  // if error on start 
+  if ( null === error ) {
+
+  } else {
+
+    errorMessage           = document.createElement('span')
+    errorMessage.innerHTML = "Error: " + error 
+    errorMessage.class     = "errorMessage"
+    errorMessage.id        = "errorMessage"
+    foreGroundDiv.appendChild(errorMessage)
+   
+  }
 
 	overlayDiv.appendChild(closeButton)
 	overlayDiv.appendChild(foreGroundDiv)
@@ -134,6 +184,7 @@ function displayQRCodeDiv (address) {
 	  if (error) return console.error(error)
 
 	})
+
 }
 
 function cancelUportLogin () {

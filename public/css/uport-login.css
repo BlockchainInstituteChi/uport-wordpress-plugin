@@ -58,3 +58,18 @@
     font-size: 1.25em;
     float: unset;
 }
+
+span#errorMessage {
+    display: block;
+    position: relative;
+    width: calc( 100% - 2em );
+    background: white;
+    margin: 0;
+    float: unset;
+    color: red;
+    padding: 1em;
+    border-radius: 1em;
+    line-height: 1.25em;
+    font-size: 1.25em;
+    text-align: left;
+}
