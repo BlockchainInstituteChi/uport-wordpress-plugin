@@ -158,6 +158,7 @@ class Uport {
 
 		} else {
 			
+			// if not configured in settings, defaults to an invalid signing key, which will send an error code to the front end
 			$signing_key = "";
 
 		}

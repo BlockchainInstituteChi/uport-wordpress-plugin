@@ -102,7 +102,7 @@ function displayQRCodeDiv (address) {
 		titleImage.src 			= "https://cdn-images-1.medium.com/max/200/1*oeYDrEAgm1TKr8o4Lvyjlg@2x.png"
 
 	var titleHint				= document.createElement('span')
-		titleHint.innerHTML		= "Scan the QR Code with your uPort App to Login"
+		titleHint.innerHTML		= "Scan the QR Code with your Uport App to Login"
 
 	var closeButton				= document.createElement('span')
 		closeButton.innerHTML 	= "✕"
