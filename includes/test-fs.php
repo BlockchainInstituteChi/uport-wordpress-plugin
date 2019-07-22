@@ -10,7 +10,7 @@ function get_or_create_encryption_key () {
     if ( 0 < $filesize ) {
 	    $file = fopen( $filename, "r+" ); 
 	    $contents = fread( $file, $filesize );
-	    print_r( 'printing key: ' . $contents . "\r\n" );
+	    print_r( 'key found: ' . $contents . "\r\n" );
 	    return $contents;
 	    fclose( $file );
 	} else {
@@ -20,22 +20,24 @@ function get_or_create_encryption_key () {
 
 }
 
+
 function create_new_key () {
 
-	$key      = generate_random_string();
+	$key      = generate_random_string(64);
     $filename = "./key.txt";
     $file     = fopen( $filename, "r+" ); 
 
     fputs( $file, $key );
-    fclose( $file );	
+    fclose( $file );
+
+    print_r('created and saved new key ' . $key . "\r\n" );	
 
     return $key;
 
 }
 
 
-function generate_random_string() {
-	$strength = 16;
+function generate_random_string( $strength = 16 ) {
 	$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $input_length = strlen( $permitted_chars );
     $random_string = '';
