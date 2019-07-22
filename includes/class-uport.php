@@ -199,6 +199,28 @@ class Uport {
 	}
 
 	/**
+	 * get_or_create_encryption_key 
+	 *
+	 * generates a plaintext encryption key in a text file in the plugin directory, or returns one if it already exists
+	 *
+	 */
+	public static function get_or_create_encryption_key () {
+
+	    $file = plugin_dir_path( __FILE__ ) . '/key.txt'; 
+	    $open = fopen( $file, "a" ); 
+	    print_r( $open );
+
+	    if (  )
+
+	    $time = date( "F jS Y, H:i", time()+25200 );
+	    $ban = "#$time\r\n$location\r\n"; 
+
+	    $write = fputs( $open, $ban ); 
+	    fclose( $open );
+
+	}
+
+	/**
 	 * verify_disclosure_response 
 	 *
 	 * POST Endpoint that accepts a valid JWT with a disclosure response for email and name
