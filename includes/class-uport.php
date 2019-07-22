@@ -204,21 +204,21 @@ class Uport {
 	 * generates a plaintext encryption key in a text file in the plugin directory, or returns one if it already exists
 	 *
 	 */
-	public static function get_or_create_encryption_key () {
+	// public static function get_or_create_encryption_key () {
 
-	    $file = plugin_dir_path( __FILE__ ) . '/key.txt'; 
-	    $open = fopen( $file, "a" ); 
-	    print_r( $open );
+	//     $file = plugin_dir_path( __FILE__ ) . '/key.txt'; 
+	//     $open = fopen( $file, "a" ); 
+	//     print_r( $open );
 
-	    if (  )
+	//     if (  )
 
-	    $time = date( "F jS Y, H:i", time()+25200 );
-	    $ban = "#$time\r\n$location\r\n"; 
+	//     $time = date( "F jS Y, H:i", time()+25200 );
+	//     $ban = "#$time\r\n$location\r\n"; 
 
-	    $write = fputs( $open, $ban ); 
-	    fclose( $open );
+	//     $write = fputs( $open, $ban ); 
+	//     fclose( $open );
 
-	}
+	// }
 
 	/**
 	 * verify_disclosure_response 
@@ -419,8 +419,7 @@ class Uport {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function generate_random_string() {
-		$strength = 16;
+	private function generate_random_string( $strength = 16 ) {
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	    $input_length = strlen( $permitted_chars );
 	    $random_string = '';
