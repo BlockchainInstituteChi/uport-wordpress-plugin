@@ -4,6 +4,7 @@ require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 use Blockchaininstitute\jwtTools as jwt_tools;
 
+
 /**
  * The file that defines the core uPort plugin class
  *
@@ -130,6 +131,72 @@ class Uport {
 
 	}
 
+	public function decrypt_stored_key ( $encrypted ) {
+
+		$uport     = new Uport ();
+		$key       = $uport->get_or_create_encryption_key();
+		$cipher    = "aes-128-ctr";
+
+		return openssl_decrypt($encrypted, $cipher, $key, OPENSSL_ZERO_PADDING, str_pad( $cipher, 16 ) );
+
+	}
+
+	public function encrypt_and_store_key ( $plaintext ) {
+		
+		$uport     = new Uport ();
+		$key       = $uport->get_or_create_encryption_key();
+		$cipher    = "aes-128-ctr";
+
+		return openssl_encrypt( $plaintext, $cipher, $key, OPENSSL_ZERO_PADDING, str_pad( $cipher, 16 ) );
+
+	}
+
+	private function get_or_create_encryption_key () {
+
+		global $wp_filesystem;
+		$uport    = new Uport ();
+	    $filename = plugin_dir_path( __FILE__ ) . '/key.txt';
+	    $filesize = filesize($filename);
+
+	    if ( 0 < $filesize ) {
+			return $wp_filesystem->get_contents( $filename );
+		} else {
+			return $uport->create_new_key();
+		}
+
+	}
+
+
+	private function create_new_key () {
+
+		global $wp_filesystem;
+		$key      = openssl_random_pseudo_bytes(64);
+	    $filename = plugin_dir_path( __FILE__ ) . '/key.txt';
+	    $wp_filesystem->put_contents( $filename, $key, FS_CHMOD_FILE );
+
+	    return $key;
+
+	}
+
+
+	/**
+	 * decrypt_signing_key 
+	 *
+	 * returns the decrypted signing key from the wordpress options db or returns an error 
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+
+	public static function decrypt_signing_key () {
+
+		$uport           = new Uport ();
+		$uport_options   = get_option( 'uport' );
+		$encrypted_key   = $uport_options['uport-key'];
+
+		return $uport->decrypt_stored_key( $encrypted_key );
+
+	}
 
 	/**
 	 * generate_disclosure_request 
@@ -154,7 +221,7 @@ class Uport {
 
 		if ( isset( $uport_options['uport-key'] ) && !empty( $uport_options['uport-key'] )) {
 			
-			$signing_key  = $uport_options['uport-key'];
+			$signing_key  = $uport->decrypt_signing_key();
 
 		} else {
 			
@@ -378,6 +445,7 @@ class Uport {
 			];
 			wp_send_json( $failure_payload );
 			wp_die();
+
 		}
 
 	}
