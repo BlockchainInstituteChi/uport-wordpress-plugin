@@ -1,5 +1,9 @@
 <?php
 
+if (!isset($uport)) {
+    error_log('init uport');
+    $uport     = new Uport ();
+}
 
 /**
  * Provide a admin area view for the uPort plugin
@@ -72,7 +76,7 @@ function getSelectedNetwork () {
             <br>
             <legend class="screen-reader-text"><span>Authentication Key</span></legend>
             <label for="<?php echo $this->plugin_name; ?>-key">
-                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-key]" value="<?php echo get_uport_option('key'); ?>"/>
+                <input type="text" id="<?php echo $this->plugin_name; ?>-key" name="<?php echo $this->plugin_name; ?>[uport-key]" value="<?php echo $uport->decrypt_stored_key( get_uport_option('key') ); ?>"/>
                 <span><?php esc_attr_e('Your Uport Private Key (in Hex Format)', $this->plugin_name); ?></span>
             </label>
             <br>
