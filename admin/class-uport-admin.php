@@ -107,12 +107,13 @@ class Uport_Admin {
 	// This isn't finished yet. Need to add text field validation for the key and mnid
 	public function validate($input) {
 
+		$uport     = new Uport ();
 		error_log('validate ran');
 
 	    $valid = array();
 	 
 	    if (isset($input['uport-mnid']) && !empty($input['uport-mnid'])) $valid['uport-mnid'] = $input['uport-mnid'];
-	    if (isset($input['uport-key']) && !empty($input['uport-key'])) $valid['uport-key'] = $input['uport-key'];
+	    if (isset($input['uport-key']) && !empty($input['uport-key'])) $valid['uport-key'] = $uport->encrypt_and_store_key($input['uport-key']);
 	    if (isset($input['uport-login-url']) && !empty($input['uport-login-url'])) $valid['uport-login-url'] = $input['uport-login-url'];	
 		if (isset($input['uport-network']) && !empty($input['uport-network'])) $valid['uport-network'] = $input['uport-network'];	    
 

@@ -4,6 +4,7 @@ require plugin_dir_path( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 use Blockchaininstitute\jwtTools as jwt_tools;
 
+
 /**
  * The file that defines the core uPort plugin class
  *
@@ -130,6 +131,118 @@ class Uport {
 
 	}
 
+	public function decrypt_stored_key ( $encrypted ) {
+
+		$uport     = new Uport ();
+		$key       = $uport->get_or_create_encryption_key();
+
+		if ( is_wp_error($key) ) {
+			error_log(json_encode($key));
+			return false;
+		} else {
+			error_log('the key is ' . $key);
+			$cipher    = "aes-128-ctr";
+
+			return openssl_decrypt($encrypted, $cipher, $key, OPENSSL_ZERO_PADDING, str_pad( $cipher, 16 ) );
+		}
+
+	}
+
+	public function encrypt_and_store_key ( $plaintext ) {
+		
+		$uport     = new Uport ();
+		$key       = $uport->get_or_create_encryption_key();
+		$cipher    = "aes-128-ctr";
+
+		return openssl_encrypt( $plaintext, $cipher, $key, OPENSSL_ZERO_PADDING, str_pad( $cipher, 16 ) );
+
+	}
+
+	private function get_or_create_encryption_key () {
+
+		global $wp_filesystem;
+
+		// protect if the the global filesystem isn't setup yet
+		if( is_null( $wp_filesystem ) )
+		    WP_Filesystem();
+
+		$uport    = new Uport ();
+	    $filename = plugin_dir_path( __FILE__ ) . 'key.txt';
+	    error_log('file: ' . $filename);
+	    if ( file_exists( $filename ) ) {
+
+			error_log('33333333333');
+			return $wp_filesystem->get_contents( $filename );
+		} else {
+			error_log('444444444444');
+			return $uport->create_new_key();
+		}
+
+	}
+
+	private function connect_fs($url, $method, $context, $fields = null){
+		global $wp_filesystem;
+
+		if(false === ($credentials = request_filesystem_credentials($url, $method, false, $context, $fields))) {
+			return false;
+		}
+
+		//check if credentials are correct or not.
+		if(!WP_Filesystem($credentials)) {
+			request_filesystem_credentials($url, $method, true, $context);
+			return false;
+		}
+
+		return true;
+	}
+
+	private function create_new_key () {
+		error_log('entered new_keu' );
+		global $wp_filesystem;
+		$uport    = new Uport ();
+
+		$url = wp_nonce_url("options-general.php?page=demo", "filesystem-nonce");
+		$form_fields = array("file-data");
+
+		if( $uport->connect_fs($url, "", plugin_dir_url( dirname( __FILE__ ) ), $form_fields ) ){
+
+			$key      = openssl_random_pseudo_bytes( 64 );
+			$dir      = $wp_filesystem->find_folder( plugin_dir_url( dirname( __FILE__ ) ) );
+			$file     = trailingslashit($dir) . "key.txt";
+			error_log('file is ' . $file);
+			$wp_filesystem->put_contents($file, $key, FS_CHMOD_FILE);
+
+		    return $key;
+
+		} else {
+
+			return new WP_Error("filesystem_error", "Cannot initialize filesystem");
+
+		}
+
+
+
+	}
+
+
+	/**
+	 * decrypt_signing_key 
+	 *
+	 * returns the decrypted signing key from the wordpress options db or returns an error 
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+
+	public static function decrypt_signing_key () {
+
+		$uport           = new Uport ();
+		$uport_options   = get_option( 'uport' );
+		$encrypted_key   = $uport_options['uport-key'];
+
+		return $uport->decrypt_stored_key( $encrypted_key );
+
+	}
 
 	/**
 	 * generate_disclosure_request 
@@ -154,7 +267,7 @@ class Uport {
 
 		if ( isset( $uport_options['uport-key'] ) && !empty( $uport_options['uport-key'] )) {
 			
-			$signing_key  = $uport_options['uport-key'];
+			$signing_key  = $uport->decrypt_signing_key();
 
 		} else {
 			
@@ -197,6 +310,28 @@ class Uport {
 		wp_die();
 
 	}
+
+	/**
+	 * get_or_create_encryption_key 
+	 *
+	 * generates a plaintext encryption key in a text file in the plugin directory, or returns one if it already exists
+	 *
+	 */
+	// public static function get_or_create_encryption_key () {
+
+	//     $file = plugin_dir_path( __FILE__ ) . '/key.txt'; 
+	//     $open = fopen( $file, "a" ); 
+	//     print_r( $open );
+
+	//     if (  )
+
+	//     $time = date( "F jS Y, H:i", time()+25200 );
+	//     $ban = "#$time\r\n$location\r\n"; 
+
+	//     $write = fputs( $open, $ban ); 
+	//     fclose( $open );
+
+	// }
 
 	/**
 	 * verify_disclosure_response 
@@ -356,6 +491,7 @@ class Uport {
 			];
 			wp_send_json( $failure_payload );
 			wp_die();
+
 		}
 
 	}
@@ -397,8 +533,7 @@ class Uport {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function generate_random_string() {
-		$strength = 16;
+	private function generate_random_string( $strength = 16 ) {
 		$permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 	    $input_length = strlen( $permitted_chars );
 	    $random_string = '';

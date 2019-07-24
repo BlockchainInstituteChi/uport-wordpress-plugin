@@ -110,10 +110,7 @@ function printError( error ) {
 
   if ( null === errorMessage ) {
  
-    errorMessage           = document.createElement('span')
-    errorMessage.innerHTML = "Error: " + error 
-    errorMessage.class     = "errorMessage"
-    errorMessage.id        = "errorMessage"
+    errorMessage           = generateErrorSpan(error);
     container.appendChild(errorMessage)
    
   } else {
@@ -124,32 +121,39 @@ function printError( error ) {
 
 }
 
+function generateErrorSpan (error) {
+    var errorMessage       = document.createElement('span')
+    errorMessage.innerHTML = "Error: " + error 
+    errorMessage.class     = "errorMessage"
+    errorMessage.id        = "errorMessage"
+    return errorMessage
+}
 
 function displayQRCodeDiv (address, error) {
 
-	var overlayDiv 				= document.createElement('div')
-		overlayDiv.className 	= 'uport-backdrop'
-		overlayDiv.id 			= "canvasBackdrop"
+	var overlayDiv 				   = document.createElement('div')
+		  overlayDiv.className = 'uport-backdrop'
+		  overlayDiv.id 			 = "canvasBackdrop"
 
-	var foreGroundDiv 			= document.createElement('div')
-		foreGroundDiv.className = 'loginWindow'
-    foreGroundDiv.id        = 'loginWindow'
+	var foreGroundDiv 			    = document.createElement('div')
+		  foreGroundDiv.className = 'loginWindow'
+      foreGroundDiv.id        = 'loginWindow'
 
-	var title 					= document.createElement('div')
-		title.className 		= "title"
+	var title 					    = document.createElement('div')
+		  title.className 		= "title"
 
-	var titleImage 				= document.createElement('img')
-		titleImage.src 			= "https://cdn-images-1.medium.com/max/200/1*oeYDrEAgm1TKr8o4Lvyjlg@2x.png"
+	var titleImage 				  = document.createElement('img')
+		  titleImage.src 			= "https://cdn-images-1.medium.com/max/200/1*oeYDrEAgm1TKr8o4Lvyjlg@2x.png"
 
-	var titleHint				= document.createElement('span')
-		titleHint.innerHTML		= "Scan the QR Code with your Uport App to Login"
+	var titleHint				    = document.createElement('span')
+		  titleHint.innerHTML	= "Scan the QR Code with your Uport App to Login"
 
-	var closeButton				= document.createElement('span')
-		closeButton.innerHTML 	= "✕"
-		closeButton.id 			= "cancel-uport-login"
+	var closeButton				    = document.createElement('span')
+		  closeButton.innerHTML = "✕"
+		  closeButton.id 			  = "cancel-uport-login"
 
-	var canvas 					= document.createElement('canvas')
-		canvas.id 				= "uport-login-canvas"
+	var canvas 		= document.createElement('canvas')
+		  canvas.id = "uport-login-canvas"
 
 	title.appendChild(titleImage)
 	title.appendChild(titleHint)
@@ -157,15 +161,13 @@ function displayQRCodeDiv (address, error) {
 	// foreGroundDiv.appendChild(closeButton)
 	foreGroundDiv.appendChild(title)
 	foreGroundDiv.appendChild(canvas)
+
   // if error on start 
   if ( null === error ) {
 
   } else {
 
-    errorMessage           = document.createElement('span')
-    errorMessage.innerHTML = "Error: " + error 
-    errorMessage.class     = "errorMessage"
-    errorMessage.id        = "errorMessage"
+    errorMessage = generateErrorSpan (error);
     foreGroundDiv.appendChild(errorMessage)
    
   }
