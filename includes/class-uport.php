@@ -131,16 +131,24 @@ class Uport {
 
 	}
 
+	/**
+	 * decrypt_stored_key
+	 *
+	 * decryptes a key using a stored encryption key
+	 *	 
+	 * @return string Returns false or a decrypted signing key
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
 	public function decrypt_stored_key ( $encrypted ) {
 
 		$uport     = new Uport ();
 		$key       = $uport->get_or_create_encryption_key();
 
 		if ( is_wp_error($key) ) {
-			error_log(json_encode($key));
 			return false;
 		} else {
-			error_log('the key is ' . $key);
 			$cipher    = "aes-128-ctr";
 
 			return openssl_decrypt($encrypted, $cipher, $key, OPENSSL_ZERO_PADDING, str_pad( $cipher, 16 ) );
@@ -148,6 +156,16 @@ class Uport {
 
 	}
 
+	/**
+	 * encrypt_and_store_key
+	 *
+	 * encrypts a signing key using a stored encryption key
+	 *	 
+	 * @return string Returns returns the encrypted signing key
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
 	public function encrypt_and_store_key ( $plaintext ) {
 		
 		$uport     = new Uport ();
@@ -158,6 +176,16 @@ class Uport {
 
 	}
 
+	/**
+	 * get_or_create_encryption_key
+	 *
+	 * gets or creates an encryption key
+	 *	 
+	 * @return string Returns the key or creates it and returns that
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
 	private function get_or_create_encryption_key () {
 
 		global $wp_filesystem;
@@ -168,18 +196,37 @@ class Uport {
 
 		$uport    = new Uport ();
 	    $filename = plugin_dir_path( __FILE__ ) . 'key.txt';
-	    error_log('file: ' . $filename);
+
 	    if ( file_exists( $filename ) ) {
 
-			error_log('33333333333');
 			return $wp_filesystem->get_contents( $filename );
+
 		} else {
-			error_log('444444444444');
+
 			return $uport->create_new_key();
+
 		}
 
 	}
 
+	/**
+	 * connect_fs 
+	 *
+	 * initializes or verifies the filesystem access
+	 *
+	 * @param string $url should contain the url for the fs call
+	 *
+	 * @param string $method should contain the filesystem method
+	 *	 
+	 * @param string $context should contain the permission context for the filesystem interaction
+	 *	 	 
+	 * @param string $fields contains a list of applicable form field options
+	 *	 	 	 
+	 * @return string Returns the user object or creates it
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
 	private function connect_fs($url, $method, $context, $fields = null){
 		global $wp_filesystem;
 
@@ -196,8 +243,16 @@ class Uport {
 		return true;
 	}
 
+	/**
+	 * create_new_key 
+	 *
+	 * generates a new key file and populates it with a new 64 bit key. 
+	 * returns a WP error on failure 
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
 	private function create_new_key () {
-		error_log('entered new_keu' );
 		global $wp_filesystem;
 		$uport    = new Uport ();
 
@@ -209,7 +264,6 @@ class Uport {
 			$key      = openssl_random_pseudo_bytes( 64 );
 			$dir      = $wp_filesystem->find_folder( plugin_dir_url( dirname( __FILE__ ) ) );
 			$file     = trailingslashit($dir) . "key.txt";
-			error_log('file is ' . $file);
 			$wp_filesystem->put_contents($file, $key, FS_CHMOD_FILE);
 
 		    return $key;
@@ -311,27 +365,6 @@ class Uport {
 
 	}
 
-	/**
-	 * get_or_create_encryption_key 
-	 *
-	 * generates a plaintext encryption key in a text file in the plugin directory, or returns one if it already exists
-	 *
-	 */
-	// public static function get_or_create_encryption_key () {
-
-	//     $file = plugin_dir_path( __FILE__ ) . '/key.txt'; 
-	//     $open = fopen( $file, "a" ); 
-	//     print_r( $open );
-
-	//     if (  )
-
-	//     $time = date( "F jS Y, H:i", time()+25200 );
-	//     $ban = "#$time\r\n$location\r\n"; 
-
-	//     $write = fputs( $open, $ban ); 
-	//     fclose( $open );
-
-	// }
 
 	/**
 	 * verify_disclosure_response 
@@ -603,7 +636,6 @@ class Uport {
 		// This probably shouldn't live here, but it's going to have to for now because nothing else works
 		add_action( 'wp_ajax_nopriv_generate_disclosure_request', array(__CLASS__, 'generate_disclosure_request' ));
 		add_action( 'wp_ajax_nopriv_verify_disclosure_response', array(__CLASS__, 'verify_disclosure_response' ));
-		// error_log('set disclosure request action');
 
 		 
 		
