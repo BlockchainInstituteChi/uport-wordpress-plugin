@@ -6,6 +6,8 @@ function callVerifyEndpoint ( access_token ) {
     'action': 'verify_disclosure_response',
     'disclosureResponse' : access_token
   };
+
+  console.log('data is ' , data);
   
   if ( 1 != preCounter ) {
     // console.log('calling', data)
@@ -39,9 +41,9 @@ function setCredentials ( ) {
     // console.log('Got this from the server: ', response);
     displayQRCodeDiv("https://id.uport.me/me?requestToken=" + response.jwt, null)
     pollForResult('access_token', response.topic, function(result) {
-      // console.log('pollForResult returned ', result)
+      console.log('pollForResult returned ', result)
       if ( typeof( result.message.access_token ) != 'undefined'  ) {
-        // console.log('valid message found; preCounter is ', preCounter);
+        console.log('valid message found; preCounter is ', preCounter);
         callVerifyEndpoint(result.message.access_token);
       }
     }, null);

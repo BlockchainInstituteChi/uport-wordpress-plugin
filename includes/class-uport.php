@@ -375,7 +375,7 @@ class Uport {
 	public static function verify_disclosure_response () {
 
 		$jwt = $_POST['disclosureResponse'];
-
+		error_log($jwt . "\r\n\r\n");
 		$jwt_tools 	= new jwt_tools( null );
 		$uport 		= new Uport();
 
@@ -388,6 +388,7 @@ class Uport {
 				'email' => $plain_text->own->email,
 				'mnid'  => $plain_text->nad,
 			];
+			error_log('payload is ' . json_encode($payload) . "\r\n\r\n");
 
 			$uport->login_with_uport( $payload );
 
