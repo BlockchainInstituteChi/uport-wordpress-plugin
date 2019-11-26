@@ -1,7 +1,11 @@
 {
     "name": "alex/uport-wordpress-plugin",
     "require": {
-        "blockchaininstitute/jwttools": "dev-master"
+        "blockchaininstitute/jwttools": "dev-master",
+        "psychob/crypto-currency-php": "dev-master",
+        "sc0vu/web3.php": "dev-master",
+        "simplito/elliptic-php": "dev-master",
+        "pelieth/laravel-ecrecover": "dev-master"
     },
     "authors": [
         {
